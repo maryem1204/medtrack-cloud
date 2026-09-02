@@ -32,4 +32,10 @@ public class Client {
     public void setAdresse(String adresse) { this.adresse = adresse; }
     public String getTelephone() { return telephone; }
     public void setTelephone(String telephone) { this.telephone = telephone; }
+    @OneToOne
+    @JoinColumn(name = "utilisateur_id", unique = true)
+    private Utilisateur utilisateur;
+
+    public Utilisateur getUtilisateur() { return utilisateur; }
+    public void setUtilisateur(Utilisateur utilisateur) { this.utilisateur = utilisateur; }
 }

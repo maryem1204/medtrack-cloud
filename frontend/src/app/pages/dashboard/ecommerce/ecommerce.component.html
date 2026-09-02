@@ -1,23 +1,396 @@
-<div class="grid grid-cols-12 gap-4 md:gap-6">
-  <div class="col-span-12 space-y-6 xl:col-span-7">
-    <div><app-ecommerce-metrics /></div>
+<div class="space-y-6">
 
-    <div><app-monthly-sales-chart /></div>
+  <!-- Header KPIs -->
+  <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+    <a routerLink="/appareils"
+       class="group rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] hover:border-brand-300 dark:hover:border-brand-700 transition-all duration-200">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-8 h-8 rounded-lg bg-brand-50 dark:bg-brand-500/15 flex items-center justify-center">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-brand-500">
+            <rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/>
+          </svg>
+        </div>
+        <span class="text-xs font-medium text-brand-500 opacity-0 group-hover:opacity-100 transition-opacity">Voir</span>
+      </div>
+      <p class="text-2xl font-bold text-gray-800 dark:text-white/90">{{ appareils.length }}</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Appareils</p>
+    </a>
+
+    <a routerLink="/fournisseurs"
+       class="group rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] hover:border-purple-300 dark:hover:border-purple-700 transition-all duration-200">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-500/15 flex items-center justify-center">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-purple-500">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          </svg>
+        </div>
+        <span class="text-xs font-medium text-purple-500 opacity-0 group-hover:opacity-100 transition-opacity">Voir</span>
+      </div>
+      <p class="text-2xl font-bold text-gray-800 dark:text-white/90">{{ fournisseurs.length }}</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Fournisseurs</p>
+    </a>
+
+    <a routerLink="/clients"
+       class="group rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-200">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-500/15 flex items-center justify-center">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-blue-500">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+          </svg>
+        </div>
+        <span class="text-xs font-medium text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity">Voir</span>
+      </div>
+      <p class="text-2xl font-bold text-gray-800 dark:text-white/90">{{ clients.length }}</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Clients</p>
+    </a>
+
+    <a routerLink="/commandes"
+       class="group rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] hover:border-amber-300 dark:hover:border-amber-700 transition-all duration-200">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-500/15 flex items-center justify-center">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-amber-500">
+            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/>
+          </svg>
+        </div>
+        <span class="text-xs font-medium text-amber-500 opacity-0 group-hover:opacity-100 transition-opacity">Voir</span>
+      </div>
+      <p class="text-2xl font-bold text-gray-800 dark:text-white/90">{{ commandes.length }}</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Commandes</p>
+    </a>
+
+    <a routerLink="/maintenance"
+       class="group rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] hover:border-green-300 dark:hover:border-green-700 transition-all duration-200">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-8 h-8 rounded-lg bg-green-50 dark:bg-green-500/15 flex items-center justify-center">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-green-500">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+          </svg>
+        </div>
+        <span class="text-xs font-medium text-green-500 opacity-0 group-hover:opacity-100 transition-opacity">Voir</span>
+      </div>
+      <p class="text-2xl font-bold text-gray-800 dark:text-white/90">{{ countMaintenancesUrgentes() }}</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Maintenances urgentes</p>
+    </a>
+
+    <a routerLink="/alertes"
+       class="group rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] hover:border-red-300 dark:hover:border-red-700 transition-all duration-200">
+      <div class="flex items-center justify-between mb-3">
+        <div class="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-500/15 flex items-center justify-center">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-red-500">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <span class="text-xs font-medium text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">Voir</span>
+      </div>
+      <p class="text-2xl font-bold text-red-600 dark:text-red-400">{{ alertes.length }}</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Alertes actives</p>
+    </a>
   </div>
 
-  <div class="col-span-12 xl:col-span-5">
-    <app-monthly-target />
+  <!-- Ligne 2 : Graphiques -->
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+
+    <!-- Donut commandes par statut -->
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+      <h3 class="text-sm font-semibold text-gray-800 dark:text-white/90 mb-4">Statut des commandes</h3>
+      <div class="flex items-center justify-center">
+        <div class="relative w-36 h-36">
+          <svg viewBox="0 0 36 36" class="w-36 h-36 -rotate-90">
+            @for (seg of donutSegments(); track seg.statut) {
+              <circle cx="18" cy="18" r="15.9" fill="none"
+                [attr.stroke]="seg.color" stroke-width="3.2"
+                stroke-dasharray="100" [attr.stroke-dashoffset]="seg.offset"
+                [attr.stroke-dasharray]="seg.dash + ' ' + (100 - seg.dash)"
+                style="transition: stroke-dasharray 0.6s ease"/>
+            }
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <span class="text-xl font-bold text-gray-800 dark:text-white/90">{{ commandes.length }}</span>
+            <span class="text-xs text-gray-400">total</span>
+          </div>
+        </div>
+      </div>
+      <div class="mt-4 space-y-2">
+        @for (seg of donutSegments(); track seg.statut) {
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full" [style.background]="seg.color"></span>
+              <span class="text-xs text-gray-600 dark:text-gray-400">{{ seg.label }}</span>
+            </div>
+            <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">{{ seg.count }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Barres appareils par catégorie -->
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-sm font-semibold text-gray-800 dark:text-white/90">Parc par catégorie</h3>
+        <span class="text-xs text-gray-400">{{ appareils.length }} appareils</span>
+      </div>
+      <div class="space-y-3 max-h-48 overflow-y-auto custom-scrollbar pr-1">
+        @for (c of countByCategorie(); track c.categorie) {
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs text-gray-600 dark:text-gray-400 truncate max-w-[120px]">{{ c.categorie }}</span>
+              <span class="text-xs font-semibold text-gray-700 dark:text-gray-300 ml-2">{{ c.count }}</span>
+            </div>
+            <div class="h-1.5 rounded-full bg-gray-100 dark:bg-white/[0.05] overflow-hidden">
+              <div class="h-full rounded-full bg-brand-500 transition-all duration-700"
+                   [style.width.%]="(c.count / maxCategorieCount()) * 100"></div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Disponibilité + score fournisseurs -->
+    <div class="space-y-4">
+      <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+        <h3 class="text-sm font-semibold text-gray-800 dark:text-white/90 mb-3">Disponibilité du parc</h3>
+        <div class="flex items-center gap-4">
+          <div class="relative w-16 h-16 shrink-0">
+            <svg viewBox="0 0 36 36" class="w-16 h-16 -rotate-90">
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="currentColor" class="text-gray-100 dark:text-white/[0.06]" stroke-width="3"/>
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#0d8f9e" stroke-width="3"
+                      stroke-dasharray="100" [attr.stroke-dashoffset]="100 - tauxDisponibilite()" stroke-linecap="round"
+                      style="transition: stroke-dashoffset 0.8s ease"/>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span class="text-xs font-bold text-gray-800 dark:text-white/90">{{ tauxDisponibilite() }}%</span>
+            </div>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-gray-800 dark:text-white/90">{{ countAppareilsByStatut('EN_STOCK') }} disponibles</p>
+            <p class="text-xs text-gray-400 mt-0.5">sur {{ appareils.length }} au total</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+        <h3 class="text-sm font-semibold text-gray-800 dark:text-white/90 mb-3">Fiabilité fournisseurs</h3>
+        <div class="flex items-center gap-4">
+          <div class="relative w-16 h-16 shrink-0">
+            <svg viewBox="0 0 36 36" class="w-16 h-16 -rotate-90">
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="currentColor" class="text-gray-100 dark:text-white/[0.06]" stroke-width="3"/>
+              <circle cx="18" cy="18" r="15.9" fill="none" [attr.stroke]="scoreGlobalFournisseurs().couleur" stroke-width="3"
+                      stroke-dasharray="100" [attr.stroke-dashoffset]="100 - scoreGlobalFournisseurs().pourcentage" stroke-linecap="round"
+                      style="transition: stroke-dashoffset 0.8s ease"/>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span class="text-xs font-bold text-gray-800 dark:text-white/90">{{ scoreGlobalFournisseurs().pourcentage }}%</span>
+            </div>
+          </div>
+          <div>
+            <p class="text-sm font-semibold" [style.color]="scoreGlobalFournisseurs().couleur">{{ scoreGlobalFournisseurs().label }}</p>
+            <p class="text-xs text-gray-400 mt-0.5">{{ fournisseurs.length }} fournisseurs actifs</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="col-span-12">
-    <app-statics-chart />
+  <!-- Ligne 3 : Tableaux interactifs -->
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-5">
+
+    <!-- Commandes récentes — filtrables -->
+    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
+      <div class="p-5 border-b border-gray-100 dark:border-gray-800">
+        <div class="flex items-center justify-between gap-3">
+          <h3 class="text-sm font-semibold text-gray-800 dark:text-white/90 shrink-0">Commandes récentes</h3>
+          <div class="flex items-center gap-2">
+            @for (s of ['Tous', 'EN_ATTENTE', 'VALIDEE', 'RECUE', 'ANNULEE']; track s) {
+              <button (click)="filtreCommande = s"
+                class="px-2 py-1 rounded-lg text-xs font-medium transition-colors"
+                [class.bg-brand-500]="filtreCommande === s"
+                [class.text-white]="filtreCommande === s"
+                [class.bg-gray-100]="filtreCommande !== s"
+                [class.text-gray-600]="filtreCommande !== s"
+                [class.dark:bg-white\/10]="filtreCommande !== s"
+                [class.dark:text-gray-400]="filtreCommande !== s">
+                {{ s === 'Tous' ? 'Tous' : statutCommandeLabel(s) }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="overflow-y-auto" style="max-height: 280px">
+        <table class="w-full text-sm">
+          <thead class="sticky top-0 bg-gray-50 dark:bg-gray-800/50">
+            <tr>
+              <th class="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Réf.</th>
+              <th class="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Fournisseur</th>
+              <th class="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Date</th>
+              <th class="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Statut</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50 dark:divide-gray-800/50">
+            @for (c of commandesFiltrees(); track c.id) {
+              <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+                <td class="px-4 py-3 font-medium text-gray-800 dark:text-white/90 text-xs">{{ c.reference }}</td>
+                <td class="px-4 py-3 text-gray-500 dark:text-gray-400 text-xs">{{ c.fournisseur?.nom || '—' }}</td>
+                <td class="px-4 py-3 text-gray-500 dark:text-gray-400 text-xs">{{ formatDate(c.dateCommande) }}</td>
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                    [class.bg-amber-100]="c.statut === 'EN_ATTENTE'"
+                    [class.text-amber-700]="c.statut === 'EN_ATTENTE'"
+                    [class.bg-green-100]="c.statut === 'VALIDEE'"
+                    [class.text-green-700]="c.statut === 'VALIDEE'"
+                    [class.bg-blue-100]="c.statut === 'RECUE'"
+                    [class.text-blue-700]="c.statut === 'RECUE'"
+                    [class.bg-red-100]="c.statut === 'ANNULEE'"
+                    [class.text-red-700]="c.statut === 'ANNULEE'">
+                    {{ statutCommandeLabel(c.statut) }}
+                  </span>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="px-4 py-8 text-center text-xs text-gray-400">Aucune commande.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Maintenances à venir -->
+    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
+      <div class="p-5 border-b border-gray-100 dark:border-gray-800">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-semibold text-gray-800 dark:text-white/90">Maintenances à venir</h3>
+          <span class="text-xs text-gray-400">{{ maintenancesAVenir().length }} planifiées</span>
+        </div>
+      </div>
+      <div class="overflow-y-auto" style="max-height: 280px">
+        <table class="w-full text-sm">
+          <thead class="sticky top-0 bg-gray-50 dark:bg-gray-800/50">
+            <tr>
+              <th class="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Appareil</th>
+              <th class="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Type</th>
+              <th class="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Date prévue</th>
+              <th class="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-gray-400">Délai</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50 dark:divide-gray-800/50">
+            @for (m of maintenancesAVenir(); track m.id) {
+              <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+                <td class="px-4 py-3 text-xs font-medium text-gray-800 dark:text-white/90">{{ m.appareil?.nom || '—' }}</td>
+                <td class="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">{{ m.type }}</td>
+                <td class="px-4 py-3 text-xs text-gray-500 dark:text-gray-400">{{ formatDate(m.datePrevue) }}</td>
+                <td class="px-4 py-3">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                    [class.bg-red-100]="joursRestants(m.datePrevue) <= 3"
+                    [class.text-red-700]="joursRestants(m.datePrevue) <= 3"
+                    [class.bg-amber-100]="joursRestants(m.datePrevue) > 3 && joursRestants(m.datePrevue) <= 7"
+                    [class.text-amber-700]="joursRestants(m.datePrevue) > 3 && joursRestants(m.datePrevue) <= 7"
+                    [class.bg-green-100]="joursRestants(m.datePrevue) > 7"
+                    [class.text-green-700]="joursRestants(m.datePrevue) > 7">
+                    {{ joursRestants(m.datePrevue) }}j
+                  </span>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="px-4 py-8 text-center text-xs text-gray-400">Aucune maintenance planifiée.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
-  <div class="col-span-12 xl:col-span-5">
-    <app-demographic-card />
+  <!-- Chatbot IA -->
+  <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
+    <div class="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-brand-50 dark:bg-brand-500/15 flex items-center justify-center">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-brand-500">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-sm font-semibold text-gray-800 dark:text-white/90">Assistant MedTrack</h3>
+          <p class="text-xs text-gray-400">Posez vos questions sur vos données</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+        <span class="text-xs text-gray-400">En ligne</span>
+      </div>
+    </div>
+
+    <!-- Messages -->
+      <div #chatScrollContainer class="overflow-y-auto p-4 space-y-3" style="max-height: 320px">
+        @for (msg of chatMessages; track $index) {
+        <div class="flex" [class.justify-end]="msg.role === 'user'">
+          @if (msg.role === 'assistant') {
+            <div class="flex items-start gap-2 max-w-[80%]">
+              <div class="w-6 h-6 rounded-full bg-brand-500 flex items-center justify-center shrink-0 mt-0.5">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+              </div>
+              <div class="rounded-2xl rounded-tl-sm bg-gray-100 dark:bg-white/[0.06] px-3.5 py-2.5 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                {{ msg.content }}
+              </div>
+            </div>
+          } @else {
+            <div class="rounded-2xl rounded-tr-sm bg-brand-500 px-3.5 py-2.5 text-sm text-white leading-relaxed max-w-[80%]">
+              {{ msg.content }}
+            </div>
+          }
+        </div>
+      }
+      @if (chatLoading) {
+        <div class="flex items-start gap-2">
+          <div class="w-6 h-6 rounded-full bg-brand-500 flex items-center justify-center shrink-0">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          </div>
+          <div class="rounded-2xl rounded-tl-sm bg-gray-100 dark:bg-white/[0.06] px-3.5 py-2.5">
+            <div class="flex gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style="animation-delay:0ms"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style="animation-delay:150ms"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style="animation-delay:300ms"></span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Suggestions rapides -->
+    @if (chatMessages.length <= 1) {
+      <div class="px-4 pb-3 flex flex-wrap gap-2">
+        @for (s of suggestions; track s) {
+          <button (click)="envoyerMessage(s)"
+            class="px-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 text-xs text-gray-600 dark:text-gray-400 hover:border-brand-300 hover:text-brand-600 dark:hover:text-brand-400 transition-colors bg-transparent">
+            {{ s }}
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Input -->
+    <div class="p-4 pt-0 border-t border-gray-100 dark:border-gray-800">
+      <div class="flex gap-2 mt-3">
+        <input [(ngModel)]="chatInput"
+          (keydown.enter)="envoyerMessage(chatInput)"
+          placeholder="Ex : Quelles commandes sont en attente ?"
+          class="flex-1 h-10 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent px-3 text-sm text-gray-800 dark:text-white/90 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400 transition" />
+        <button (click)="envoyerMessage(chatInput)"
+          [disabled]="!chatInput.trim() || chatLoading"
+          class="h-10 w-10 rounded-xl bg-brand-500 hover:bg-brand-600 disabled:opacity-40 flex items-center justify-center transition-colors shrink-0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+    </div>
   </div>
 
-  <div class="col-span-12 xl:col-span-7">
-    <app-recent-orders/>
-  </div>
 </div>

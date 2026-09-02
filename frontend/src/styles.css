@@ -42,18 +42,18 @@ layer(base);
   --color-white: #ffffff;
   --color-black: #101828;
 
-  --color-brand-25: #f2f7ff;
-  --color-brand-50: #ecf3ff;
-  --color-brand-100: #dde9ff;
-  --color-brand-200: #c2d6ff;
-  --color-brand-300: #9cb9ff;
-  --color-brand-400: #7592ff;
-  --color-brand-500: #465fff;
-  --color-brand-600: #3641f5;
-  --color-brand-700: #2a31d8;
-  --color-brand-800: #252dae;
-  --color-brand-900: #262e89;
-  --color-brand-950: #161950;
+--color-brand-25: #f0fbfc;
+  --color-brand-50: #e0f6f8;
+  --color-brand-100: #b8ecf0;
+  --color-brand-200: #85dde5;
+  --color-brand-300: #4bc8d4;
+  --color-brand-400: #22aebc;
+  --color-brand-500: #0d8f9e;
+  --color-brand-600: #0b7482;
+  --color-brand-700: #0a5d68;
+  --color-brand-800: #0a4a53;
+  --color-brand-900: #0b3d44;
+  --color-brand-950: #05242a;
 
   --color-blue-light-25: #f5fbff;
   --color-blue-light-50: #f0f9ff;
@@ -864,4 +864,12 @@ pre[class*="language-"] {
 }
 pre[class*="language-"].line-numbers {
   padding-left: 2.8em !important;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 1;
+  filter: none;
+}
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
 }

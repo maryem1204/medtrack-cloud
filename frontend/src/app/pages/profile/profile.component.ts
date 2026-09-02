@@ -1,21 +1,42 @@
-
-import { Component } from '@angular/core';
-import { PageBreadcrumbComponent } from '../../shared/components/common/page-breadcrumb/page-breadcrumb.component';
-import { UserMetaCardComponent } from '../../shared/components/user-profile/user-meta-card/user-meta-card.component';
-import { UserInfoCardComponent } from '../../shared/components/user-profile/user-info-card/user-info-card.component';
-import { UserAddressCardComponent } from '../../shared/components/user-profile/user-address-card/user-address-card.component';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { UtilisateurService, Utilisateur } from '../../services/utilisateur/utilisateur.service';
+import { AuthService } from '../../services/auth/auth.service';
 
 @Component({
   selector: 'app-profile',
-  imports: [
-    PageBreadcrumbComponent,
-    UserMetaCardComponent,
-    UserInfoCardComponent,
-    UserAddressCardComponent
-],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './profile.component.html',
-  styles: ``
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnInit {
+  utilisateur: Utilisateur | null = null;
+  loading = true;
+  message = '';
+  erreur = '';
 
+  constructor(
+    private utilisateurService: UtilisateurService,
+    private authService: AuthService
+  ) {}
+
+  ngOnInit() {
+    const user = this.authService.getUser();
+    if (!user) return;
+    this.utilisateurService.getById(user.id).subscribe({
+      next: (u) => { this.utilisateur = u; this.loading = false; },
+      error: (err) => { console.error(err); this.loading = false; },
+    });
+  }
+
+  enregistrer() {
+    if (!this.utilisateur?.id) return;
+    this.message = '';
+    this.erreur = '';
+    this.utilisateurService.update(this.utilisateur.id, this.utilisateur).subscribe({
+      next: () => this.message = 'Profil mis à jour avec succès.',
+      error: () => this.erreur = 'Erreur lors de la mise à jour.',
+    });
+  }
 }

@@ -1,0 +1,47 @@
+version: "3.9"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: medtrack-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: medtrack
+      MYSQL_USER: medtrack
+      MYSQL_PASSWORD: medtrackpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: medtrack-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/medtrack
+      SPRING_DATASOURCE_USERNAME: medtrack
+      SPRING_DATASOURCE_PASSWORD: medtrackpass
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./frontend
+    container_name: medtrack-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "4200:80"
+
+volumes:
+  mysql_data:

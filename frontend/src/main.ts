@@ -7,3 +7,4 @@ registerSwiperElements();
 
 bootstrapApplication(AppComponent, appConfig)
   .catch((err) => console.error(err));
+(window as any).global = window;

@@ -1,0 +1,69 @@
+<div class="rounded-3xl border border-gray-200/60 dark:border-gray-800 bg-white/80 dark:bg-white/[0.03] backdrop-blur-xl shadow-xl shadow-gray-200/50 dark:shadow-none overflow-hidden">
+
+  <div #chatScrollContainer class="overflow-y-auto p-5 space-y-4" style="max-height: 55vh; min-height: 320px">
+    @for (msg of chatMessages; track $index) {
+      <div class="flex" [class.justify-end]="msg.role === 'user'">
+        @if (msg.role === 'assistant') {
+          <div class="flex items-start gap-2.5 max-w-[85%]">
+            <div class="relative w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center shrink-0 shadow-md shadow-teal-500/30">
+              <span class="absolute inset-0 rounded-full bg-teal-400 animate-ping opacity-20"></span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+            </div>
+            <div class="rounded-2xl rounded-tl-md bg-gray-50 dark:bg-white/[0.06] px-4 py-3 text-sm text-gray-700 dark:text-gray-300 leading-relaxed shadow-sm">
+              {{ msg.content }}
+            </div>
+          </div>
+        } @else {
+          <div class="rounded-2xl rounded-tr-md bg-gradient-to-br from-teal-500 to-blue-500 px-4 py-3 text-sm text-white leading-relaxed max-w-[85%] shadow-md shadow-teal-500/20">
+            {{ msg.content }}
+          </div>
+        }
+      </div>
+    }
+    @if (chatLoading) {
+      <div class="flex items-start gap-2.5">
+        <div class="w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-blue-500 flex items-center justify-center shrink-0">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
+        <div class="rounded-2xl rounded-tl-md bg-gray-50 dark:bg-white/[0.06] px-4 py-3">
+          <div class="flex gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-teal-400 animate-bounce" style="animation-delay:0ms"></span>
+            <span class="w-2 h-2 rounded-full bg-teal-400 animate-bounce" style="animation-delay:150ms"></span>
+            <span class="w-2 h-2 rounded-full bg-teal-400 animate-bounce" style="animation-delay:300ms"></span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (chatMessages.length <= 1) {
+    <div class="px-5 pb-4 flex flex-wrap gap-2">
+      @for (s of suggestions; track s) {
+        <button (click)="envoyerMessage(s)"
+          class="px-3.5 py-2 rounded-full border border-teal-200 dark:border-teal-800 text-xs font-medium text-teal-700 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-500/10 transition-colors bg-white dark:bg-transparent">
+          {{ s }}
+        </button>
+      }
+    </div>
+  }
+
+  <div class="p-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-transparent">
+    <div class="flex gap-2 items-center">
+      <input [(ngModel)]="chatInput"
+        (keydown.enter)="envoyerMessage(chatInput)"
+        placeholder="Écrivez votre question..."
+        class="flex-1 h-11 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-white/[0.03] px-4 text-sm text-gray-800 dark:text-white/90 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500/30 focus:border-teal-400 transition" />
+      <button (click)="envoyerMessage(chatInput)"
+        [disabled]="!chatInput.trim() || chatLoading"
+        class="h-11 w-11 rounded-full bg-gradient-to-br from-teal-500 to-blue-500 hover:from-teal-600 hover:to-blue-600 disabled:opacity-40 flex items-center justify-center transition-all shrink-0 shadow-md shadow-teal-500/30">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>

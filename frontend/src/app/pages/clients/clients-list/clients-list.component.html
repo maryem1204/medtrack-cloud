@@ -1,0 +1,189 @@
+<div class="space-y-6">
+
+  <!-- Cards stats -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+      <p class="text-sm text-gray-500 dark:text-gray-400">Total clients</p>
+      <p class="mt-1 text-2xl font-bold text-gray-800 dark:text-white/90">{{ clients.length }}</p>
+    </div>
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+      <p class="text-sm text-gray-500 dark:text-gray-400">🏥 Hôpitaux</p>
+      <p class="mt-1 text-2xl font-bold text-gray-800 dark:text-white/90">{{ countByType('HOPITAL') }}</p>
+    </div>
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+      <p class="text-sm text-gray-500 dark:text-gray-400">⚕️ Cliniques</p>
+      <p class="mt-1 text-2xl font-bold text-gray-800 dark:text-white/90">{{ countByType('CLINIQUE') }}</p>
+    </div>
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+      <p class="text-sm text-gray-500 dark:text-gray-400">💊 Pharmacies</p>
+      <p class="mt-1 text-2xl font-bold text-gray-800 dark:text-white/90">{{ countByType('PHARMACIE') }}</p>
+    </div>
+  </div>
+
+  <!-- Barre d'outils -->
+  <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+    <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+      <div class="relative w-full sm:w-80">
+        <span class="absolute -translate-y-1/2 left-4 top-1/2">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M9 16A7 7 0 109 2a7 7 0 000 14zM18 18l-4-4" stroke="#9ca3af" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </span>
+        <input [(ngModel)]="searchTerm" type="text" placeholder="Rechercher (nom, adresse)..."
+          class="h-11 w-full rounded-lg border border-gray-200 bg-transparent pl-11 pr-4 text-sm text-gray-800 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:text-white/90" />
+      </div>
+      <div class="flex gap-3">
+        <select [(ngModel)]="filtreType"
+          class="h-11 w-full rounded-lg border border-gray-200 bg-white dark:bg-gray-900 px-3 pr-10 text-sm text-gray-700 dark:border-gray-800 dark:text-white/90 appearance-none bg-no-repeat bg-[right_0.75rem_center] cursor-pointer"
+          style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 20 20%22 fill=%22none%22><path d=%22M5 7l5 5 5-5%22 stroke=%22%239ca3af%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')">
+          <option value="">Tous les types</option>
+          <option value="HOPITAL">Hôpital</option>
+          <option value="CLINIQUE">Clinique</option>
+          <option value="PHARMACIE">Pharmacie</option>
+        </select>
+        <button *appHasPermission="['clients', 'create']" (click)="ouvrirModal()" class="h-11 px-5 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors whitespace-nowrap">
+          + Ajouter un client
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grille -->
+  @if (loading) {
+    <p class="text-gray-500 dark:text-gray-400">Chargement...</p>
+  } @else if (clientsFiltres().length === 0) {
+    <div class="rounded-2xl border border-gray-200 bg-white p-10 text-center dark:border-gray-800 dark:bg-white/[0.03]">
+      <p class="text-gray-500 dark:text-gray-400">Aucun client ne correspond à ta recherche.</p>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+      @for (c of clientsPage; track c.id) {
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+          <div class="flex items-start justify-between">
+            <div class="flex items-center gap-3">
+              <div class="flex items-center justify-center w-11 h-11 rounded-xl bg-brand-50 dark:bg-brand-500/15 text-xl">
+                {{ typeIcone(c.type) }}
+              </div>
+              <div>
+                <h4 class="text-base font-semibold text-gray-800 dark:text-white/90">{{ c.nom }}</h4>
+                <span class="px-2 py-0.5 rounded-full text-xs font-medium" [ngClass]="typeBadgeClass(c.type)">
+                  {{ typeLabel(c.type) }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 space-y-1.5 text-sm text-gray-500 dark:text-gray-400">
+            <p class="flex items-center gap-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-6.5-7-11a7 7 0 0114 0c0 4.5-7 11-7 11z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="1.6"/></svg>
+              {{ c.adresse }}
+            </p>
+            @if (c.telephone) {
+              <a [href]="'tel:' + c.telephone" class="flex items-center gap-2 hover:text-brand-600 dark:hover:text-brand-400">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .3 2 .6 2.9a2 2 0 01-.5 2.1L8 10a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.5c.9.3 1.9.5 2.9.6a2 2 0 011.7 2.1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                {{ c.telephone }}
+              </a>
+            }
+          </div>
+          <div class="mt-4 flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-gray-800">
+            <button *appHasPermission="['clients', 'update']" (click)="modifier(c)" class="flex-1 h-9 flex items-center justify-center gap-1.5 rounded-lg text-sm font-medium text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-500/10 transition-colors">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M11 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Modifier
+            </button>
+            <button *appHasPermission="['clients', 'delete']" (click)="demanderSuppression(c)" class="flex-1 h-9 flex items-center justify-center gap-1.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10 transition-colors">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Supprimer
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Pagination -->
+  @if (!loading && clientsFiltres().length > 0) {
+    <div class="flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-5 py-3 dark:border-gray-800 dark:bg-white/[0.03]">
+      <p class="text-sm text-gray-500 dark:text-gray-400">Page {{ page }} sur {{ totalPages }} — {{ clientsFiltres().length }} résultat(s)</p>
+      <div class="flex items-center gap-1">
+        <button (click)="allerPage(page - 1)" [disabled]="page === 1" class="h-9 w-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-white/[0.03]">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M12 15l-5-5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        @for (p of pagesArray(); track p) {
+          <button (click)="allerPage(p)" class="h-9 w-9 flex items-center justify-center rounded-lg text-sm font-medium transition-colors" [ngClass]="p === page ? 'bg-brand-500 text-white' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/[0.03]'">
+            {{ p }}
+          </button>
+        }
+        <button (click)="allerPage(page + 1)" [disabled]="page === totalPages" class="h-9 w-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-white/[0.03]">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M8 5l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Modal ajout/édition -->
+  @if (showModal) {
+    <div class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4" (click)="fermerModal()">
+      <div class="w-full max-w-md rounded-2xl bg-white p-6 dark:bg-gray-900" (click)="$event.stopPropagation()">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">{{ modeEdition ? 'Modifier' : 'Ajouter' }} un client</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="text-sm text-gray-600 dark:text-gray-400">Nom <span class="text-red-500">*</span></label>
+            <input [(ngModel)]="nouveauClient.nom" type="text" required class="mt-1 h-11 w-full rounded-lg border border-gray-200 bg-transparent px-3 text-sm dark:border-gray-800 dark:text-white/90" />
+          </div>
+          <div>
+            <label class="text-sm text-gray-600 dark:text-gray-400">Type</label>
+            <select [(ngModel)]="nouveauClient.type"
+              class="mt-1 h-11 w-full rounded-lg border border-gray-200 bg-white dark:bg-gray-900 px-3 pr-10 text-sm text-gray-700 dark:border-gray-800 dark:text-white/90 appearance-none bg-no-repeat bg-[right_0.75rem_center] cursor-pointer"
+              style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 20 20%22 fill=%22none%22><path d=%22M5 7l5 5 5-5%22 stroke=%22%239ca3af%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')">
+              <option value="HOPITAL">Hôpital</option>
+              <option value="CLINIQUE">Clinique</option>
+              <option value="PHARMACIE">Pharmacie</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-sm text-gray-600 dark:text-gray-400">Adresse <span class="text-red-500">*</span></label>
+            <input [(ngModel)]="nouveauClient.adresse" type="text" required class="mt-1 h-11 w-full rounded-lg border border-gray-200 bg-transparent px-3 text-sm dark:border-gray-800 dark:text-white/90" />
+          </div>
+          <div>
+            <label class="text-sm text-gray-600 dark:text-gray-400">Téléphone</label>
+            <div class="relative mt-1">
+              <input [(ngModel)]="nouveauClient.telephone" type="text" placeholder="+216 29 388 421"
+                class="h-11 w-full rounded-lg border px-3 pr-10 text-sm dark:text-white/90 bg-transparent"
+                [ngClass]="nouveauClient.telephone && !telephoneValide ? 'border-red-400' : 'border-gray-200 dark:border-gray-800'" />
+              @if (nouveauClient.telephone) {
+                <span class="absolute right-3 top-1/2 -translate-y-1/2">
+                  @if (telephoneValide) {
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  } @else {
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/></svg>
+                  }
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+        @if (formErreur) {
+          <p class="mt-3 text-sm text-red-600 dark:text-red-400">{{ formErreur }}</p>
+        }
+        <div class="mt-6 flex justify-end gap-3">
+          <button (click)="fermerModal()" class="h-10 px-4 rounded-lg border border-gray-200 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">Annuler</button>
+          <button (click)="enregistrer()" class="h-10 px-4 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal confirmation suppression -->
+  @if (showConfirmSuppression) {
+    <div class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4" (click)="annulerSuppression()">
+      <div class="w-full max-w-sm rounded-2xl bg-white p-6 dark:bg-gray-900" (click)="$event.stopPropagation()">
+        <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-50 dark:bg-red-500/15 mx-auto mb-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.3 3.9L2.7 17a2 2 0 001.7 3h15.2a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="#dc2626" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3 class="text-center text-lg font-semibold text-gray-800 dark:text-white/90">Supprimer ce client ?</h3>
+        <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">"{{ clientASupprimer?.nom }}" sera définitivement supprimé.</p>
+        <div class="mt-6 flex justify-center gap-3">
+          <button (click)="annulerSuppression()" class="h-10 px-5 rounded-lg border border-gray-200 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">Annuler</button>
+          <button (click)="confirmerSuppression()" class="h-10 px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium">Supprimer</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

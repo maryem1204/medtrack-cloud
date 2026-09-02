@@ -1,0 +1,242 @@
+<div class="space-y-6">
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+      <p class="text-sm text-gray-500 dark:text-gray-400">Total</p>
+      <p class="mt-1 text-2xl font-bold text-gray-800 dark:text-white/90">{{ maintenances.length }}</p>
+    </div>
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+      <p class="text-sm text-gray-500 dark:text-gray-400">Planifiées</p>
+      <p class="mt-1 text-2xl font-bold text-amber-600 dark:text-amber-400">{{ countByStatut('PLANIFIEE') }}</p>
+    </div>
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+      <p class="text-sm text-gray-500 dark:text-gray-400">En cours</p>
+      <p class="mt-1 text-2xl font-bold text-brand-600 dark:text-brand-400">{{ countByStatut('EN_COURS') }}</p>
+    </div>
+    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+      <p class="text-sm text-gray-500 dark:text-gray-400">Terminées</p>
+      <p class="mt-1 text-2xl font-bold text-green-600 dark:text-green-400">{{ countByStatut('TERMINEE') }}</p>
+    </div>
+  </div>
+
+  <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+    <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+      <select [(ngModel)]="filtreStatut"
+        class="h-11 w-full sm:w-56 rounded-lg border border-gray-200 bg-white dark:bg-gray-900 px-3 pr-10 text-sm text-gray-700 dark:border-gray-800 dark:text-white/90 appearance-none bg-no-repeat bg-[right_0.75rem_center] cursor-pointer"
+        style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 20 20%22 fill=%22none%22><path d=%22M5 7l5 5 5-5%22 stroke=%22%239ca3af%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')">
+        <option value="">Tous les statuts</option>
+        <option value="PLANIFIEE">Planifiée</option>
+        <option value="EN_COURS">En cours</option>
+        <option value="TERMINEE">Terminée</option>
+        <option value="ANNULEE">Annulée</option>
+      </select>
+      <div class="flex gap-3">
+        <button (click)="ouvrirHistoriqueGlobal()" class="h-11 px-5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors whitespace-nowrap">
+          📋 Historique global
+        </button>
+        <button (click)="ouvrirModal()" class="h-11 px-5 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors whitespace-nowrap">
+          + Planifier une maintenance
+        </button>
+      </div>
+    </div>
+  </div>
+
+  @if (loading) {
+    <p class="text-gray-500 dark:text-gray-400">Chargement...</p>
+  } @else if (maintenancesFiltrees().length === 0) {
+    <div class="rounded-2xl border border-gray-200 bg-white p-10 text-center dark:border-gray-800 dark:bg-white/[0.03]">
+      <p class="text-gray-500 dark:text-gray-400">Aucune maintenance ne correspond.</p>
+    </div>
+  } @else {
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+      @for (m of maintenancesPage; track m.id) {
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border-l-4"
+             [ngClass]="estEnRetard(m) ? 'border-l-red-500' : estUrgente(m) ? 'border-l-amber-400' : 'border-l-gray-200 dark:border-l-gray-700'">
+          <div class="flex items-start justify-between">
+            <div>
+              <h4 class="text-base font-semibold text-gray-800 dark:text-white/90">{{ m.appareil?.nom || 'Appareil inconnu' }}</h4>
+              <p class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{{ typeLabel(m.type) }}</p>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-xs font-medium" [ngClass]="statutBadgeClass(m.statut)">
+              {{ statutLabel(m.statut) }}
+            </span>
+          </div>
+
+          @if (m.technicien) {
+            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zM4 22a8 8 0 0116 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              {{ m.technicien.nom }} {{ m.technicien.prenom }}
+            </p>
+          }
+
+          <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            Prévue le {{ m.datePrevue }}
+            @if (estEnRetard(m)) {
+              <span class="ml-2 text-red-600 dark:text-red-400 font-medium">⚠ En retard</span>
+            } @else if (estUrgente(m)) {
+              <span class="ml-2 text-amber-600 dark:text-amber-400 font-medium">⏰ Dans {{ joursRestants(m) }} j</span>
+            }
+          </div>
+
+          <div class="mt-4 flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-gray-800">
+            @if (m.statut === 'PLANIFIEE' || m.statut === 'EN_COURS') {
+              <button (click)="marquerTerminee(m)"
+                class="h-9 flex-1 flex items-center justify-center gap-1.5 rounded-lg text-sm font-medium text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-500/10 transition-colors">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Terminer
+              </button>
+            }
+            <button (click)="voirHistorique(m.appareil)"
+              class="h-9 flex-1 flex items-center justify-center gap-1.5 rounded-lg text-sm font-medium text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-500/10 transition-colors">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 3M21 12a9 9 0 11-9-9 9 9 0 019 9z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Historique
+            </button>
+            <button (click)="demanderSuppression(m)"
+              class="h-9 w-9 flex items-center justify-center rounded-lg text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10 transition-colors">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  @if (!loading && maintenancesFiltrees().length > 0) {
+    <div class="flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-5 py-3 dark:border-gray-800 dark:bg-white/[0.03]">
+      <p class="text-sm text-gray-500 dark:text-gray-400">Page {{ page }} sur {{ totalPages }} — {{ maintenancesFiltrees().length }} résultat(s)</p>
+      <div class="flex items-center gap-1">
+        <button (click)="allerPage(page - 1)" [disabled]="page === 1" class="h-9 w-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-white/[0.03]">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M12 15l-5-5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        @for (p of pagesArray(); track p) {
+          <button (click)="allerPage(p)" class="h-9 w-9 flex items-center justify-center rounded-lg text-sm font-medium transition-colors" [ngClass]="p === page ? 'bg-brand-500 text-white' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/[0.03]'">
+            {{ p }}
+          </button>
+        }
+        <button (click)="allerPage(page + 1)" [disabled]="page === totalPages" class="h-9 w-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-white/[0.03]">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M8 5l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (showModal) {
+    <div class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4" (click)="fermerModal()">
+      <div class="w-full max-w-md rounded-2xl bg-white p-6 dark:bg-gray-900" (click)="$event.stopPropagation()">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">Planifier une maintenance</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="text-sm text-gray-600 dark:text-gray-400">Appareil <span class="text-red-500">*</span></label>
+            <select [(ngModel)]="nouvelleMaintenance.appareilId"
+              class="mt-1 h-11 w-full rounded-lg border border-gray-200 bg-white dark:bg-gray-900 px-3 pr-10 text-sm text-gray-700 dark:border-gray-800 dark:text-white/90 appearance-none bg-no-repeat bg-[right_0.75rem_center] cursor-pointer"
+              style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 20 20%22 fill=%22none%22><path d=%22M5 7l5 5 5-5%22 stroke=%22%239ca3af%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')">
+              <option [ngValue]="null">-- Sélectionner --</option>
+              @for (a of appareils; track a.id) { <option [ngValue]="a.id">{{ a.nom }} ({{ a.numeroSerie }})</option> }
+            </select>
+          </div>
+          <div>
+            <label class="text-sm text-gray-600 dark:text-gray-400">Technicien assigné</label>
+            <select [(ngModel)]="nouvelleMaintenance.technicienId"
+              class="mt-1 h-11 w-full rounded-lg border border-gray-200 bg-white dark:bg-gray-900 px-3 pr-10 text-sm text-gray-700 dark:border-gray-800 dark:text-white/90 appearance-none bg-no-repeat bg-[right_0.75rem_center] cursor-pointer"
+              style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 20 20%22 fill=%22none%22><path d=%22M5 7l5 5 5-5%22 stroke=%22%239ca3af%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')">
+              <option [ngValue]="null">-- Non assigné --</option>
+              @for (t of techniciens; track t.id) { <option [ngValue]="t.id">{{ t.nom }} {{ t.prenom }}</option> }
+            </select>
+            @if (techniciens.length === 0) {
+              <p class="mt-1 text-xs text-amber-600 dark:text-amber-400">Aucun utilisateur avec le rôle TECHNICIEN pour l'instant.</p>
+            }
+          </div>
+          <div>
+            <label class="text-sm text-gray-600 dark:text-gray-400">Type d'intervention</label>
+            <select [(ngModel)]="nouvelleMaintenance.type"
+              class="mt-1 h-11 w-full rounded-lg border border-gray-200 bg-white dark:bg-gray-900 px-3 pr-10 text-sm text-gray-700 dark:border-gray-800 dark:text-white/90 appearance-none bg-no-repeat bg-[right_0.75rem_center] cursor-pointer"
+              style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 20 20%22 fill=%22none%22><path d=%22M5 7l5 5 5-5%22 stroke=%22%239ca3af%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')">
+              <option value="CALIBRATION">Calibration</option>
+              <option value="REPARATION">Réparation</option>
+              <option value="CONTROLE_PERIODIQUE">Contrôle périodique</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-sm text-gray-600 dark:text-gray-400">Date prévue <span class="text-red-500">*</span></label>
+            <input [(ngModel)]="nouvelleMaintenance.datePrevue" type="date" required
+              class="mt-1 h-11 w-full rounded-lg border border-gray-200 bg-transparent px-3 text-sm dark:border-gray-800 dark:text-white/90" />
+          </div>
+        </div>
+        @if (formErreur) { <p class="mt-3 text-sm text-red-600 dark:text-red-400">{{ formErreur }}</p> }
+        <div class="mt-6 flex justify-end gap-3">
+          <button (click)="fermerModal()" class="h-10 px-4 rounded-lg border border-gray-200 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">Annuler</button>
+          <button (click)="enregistrer()" class="h-10 px-4 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (showHistorique && appareilHistorique) {
+    <div class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4" (click)="fermerHistorique()">
+      <div class="w-full max-w-md rounded-2xl bg-white p-6 dark:bg-gray-900" (click)="$event.stopPropagation()">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-1">Historique — {{ appareilHistorique.nom }}</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">{{ appareilHistorique.numeroSerie }}</p>
+        <div class="space-y-2 max-h-72 overflow-y-auto">
+          @for (h of historiqueAppareil(appareilHistorique.id); track h.id) {
+            <div class="rounded-lg bg-gray-50 dark:bg-white/[0.03] px-3 py-2">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-gray-800 dark:text-white/90">{{ typeLabel(h.type) }}</span>
+                <span class="text-xs text-gray-400">{{ h.dateRealisee }}</span>
+              </div>
+              @if (h.technicien) {
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Par {{ h.technicien.nom }} {{ h.technicien.prenom }}</p>
+              }
+            </div>
+          } @empty {
+            <p class="text-sm text-gray-400">Aucune intervention terminée pour cet appareil.</p>
+          }
+        </div>
+        <div class="mt-6 flex justify-end">
+          <button (click)="fermerHistorique()" class="h-10 px-4 rounded-lg border border-gray-200 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">Fermer</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (showHistoriqueGlobal) {
+    <div class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4" (click)="fermerHistoriqueGlobal()">
+      <div class="w-full max-w-2xl rounded-2xl bg-white p-6 dark:bg-gray-900 max-h-[80vh] overflow-y-auto" (click)="$event.stopPropagation()">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">Historique global des interventions</h3>
+        <div class="space-y-2">
+          @for (h of toutesInterventionsTerminees(); track h.id) {
+            <div class="flex items-center justify-between rounded-lg bg-gray-50 dark:bg-white/[0.03] px-4 py-3">
+              <div>
+                <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ h.appareil?.nom }} — {{ typeLabel(h.type) }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  {{ h.appareil?.numeroSerie }}
+                  @if (h.technicien) { · Par {{ h.technicien.nom }} {{ h.technicien.prenom }} }
+                </p>
+              </div>
+              <span class="text-xs text-gray-400 whitespace-nowrap">{{ h.dateRealisee }}</span>
+            </div>
+          } @empty {
+            <p class="text-sm text-gray-400 text-center py-8">Aucune intervention terminée pour le moment.</p>
+          }
+        </div>
+        <div class="mt-6 flex justify-end">
+          <button (click)="fermerHistoriqueGlobal()" class="h-10 px-4 rounded-lg border border-gray-200 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">Fermer</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (showConfirmSuppression) {
+    <div class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4" (click)="annulerSuppression()">
+      <div class="w-full max-w-sm rounded-2xl bg-white p-6 dark:bg-gray-900" (click)="$event.stopPropagation()">
+        <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-50 dark:bg-red-500/15 mx-auto mb-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.3 3.9L2.7 17a2 2 0 001.7 3h15.2a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="#dc2626" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3 class="text-center text-lg font-semibold text-gray-800 dark:text-white/90">Supprimer cette maintenance ?</h3>
+        <div class="mt-6 flex justify-center gap-3">
+          <button (click)="annulerSuppression()" class="h-10 px-5 rounded-lg border border-gray-200 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">Annuler</button>
+          <button (click)="confirmerSuppression()" class="h-10 px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium">Supprimer</button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

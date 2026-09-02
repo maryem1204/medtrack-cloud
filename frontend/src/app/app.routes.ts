@@ -18,107 +18,173 @@ import { VideosComponent } from './pages/ui-elements/videos/videos.component';
 import { SignInComponent } from './pages/auth-pages/sign-in/sign-in.component';
 import { SignUpComponent } from './pages/auth-pages/sign-up/sign-up.component';
 import { CalenderComponent } from './pages/calender/calender.component';
+import { AppareilsListComponent } from './pages/appareils/appareils-list/appareils-list.component';
+import { FournisseursListComponent } from './pages/fournisseurs/fournisseurs-list/fournisseurs-list.component';
+import { CommandesListComponent } from './pages/commandes/commandes-list/commandes-list.component';
+import { ClientsListComponent } from './pages/clients/clients-list/clients-list.component';
+import { MaintenanceListComponent } from './pages/maintenances/maintenance-list/maintenance-list.component';
+import { AlertesListComponent } from './pages/alertes/alertes-list/alertes-list.component';
+import { VentesListComponent } from './pages/ventes/ventes-list/ventes-list/ventes-list.component';
+import { authGuard } from './guards/auth.guard';
+import { guestGuard } from './guards/guest.guard';
+import { roleGuard } from './guards/role.guard';
+import { UtilisateursListComponent } from './pages/utilisateurs/utilisateurs-list/utilisateurs-list.component';
+import { ScanAppareilComponent } from './pages/scan/scan-appareil/scan-appareil/scan-appareil.component';
+import { CreatePasswordComponent } from './pages/auth-pages/create-password/create-password.component';
+import { ForgotPasswordComponent } from './pages/auth-pages/forgot-password/forgot-password.component';
+import { ClientDashboardComponent } from './pages/client-dashboard/client-dashboard/client-dashboard.component';
 
 export const routes: Routes = [
   {
-    path:'',
-    component:AppLayoutComponent,
-    children:[
+    path: '',
+    component: AppLayoutComponent,
+    canActivate: [authGuard],
+    children: [
       {
         path: '',
         component: EcommerceComponent,
         pathMatch: 'full',
-        title:
-          'Angular Ecommerce Dashboard | TailAdmin - Angular Admin Dashboard Template',
+        title: 'MedTrack Cloud',
       },
       {
-        path:'calendar',
-        component:CalenderComponent,
-        title:'Angular Calender | TailAdmin - Angular Admin Dashboard Template'
+        path: 'dashboard',
+        component: EcommerceComponent,
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'] },
+        title: 'Tableau de bord | MedTrack Cloud',
+      },
+      { path: 'espace-client', component: ClientDashboardComponent, canActivate: [roleGuard], data: { roles: ['CLIENT', 'ADMIN', 'TECHNICIEN', 'COMMERCIAL'] }, title: 'Espace client | MedTrack Cloud' },
+      {
+        path: 'utilisateurs',
+        component: UtilisateursListComponent,
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN'] },
+        title: 'Utilisateurs | MedTrack Cloud'
       },
       {
-        path:'profile',
-        component:ProfileComponent,
-        title:'Angular Profile Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        path: 'ventes',
+        component: VentesListComponent,
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN', 'COMMERCIAL'] },
+        title: 'Ventes | MedTrack Cloud'
       },
       {
-        path:'form-elements',
-        component:FormElementsComponent,
-        title:'Angular Form Elements Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        path: 'alertes',
+        component: AlertesListComponent,
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN', 'TECHNICIEN'] },
+        title: 'Alertes | MedTrack Cloud'
       },
       {
-        path:'basic-tables',
-        component:BasicTablesComponent,
-        title:'Angular Basic Tables Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        path: 'clients',
+        component: ClientsListComponent,
+        title: 'Clients | MedTrack Cloud'
       },
       {
-        path:'blank',
-        component:BlankComponent,
-        title:'Angular Blank Dashboard | TailAdmin - Angular Admin Dashboard Template'
-      },
-      // support tickets
-      {
-        path:'invoice',
-        component:InvoicesComponent,
-        title:'Angular Invoice Details Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        path: 'maintenance',
+        component: MaintenanceListComponent,
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN', 'TECHNICIEN'] },
+        title: 'Maintenance | MedTrack Cloud'
       },
       {
-        path:'line-chart',
-        component:LineChartComponent,
-        title:'Angular Line Chart Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        path: 'appareils',
+        component: AppareilsListComponent
       },
       {
-        path:'bar-chart',
-        component:BarChartComponent,
-        title:'Angular Bar Chart Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        path: 'fournisseurs',
+        component: FournisseursListComponent,
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN', 'COMMERCIAL'] },
+        title: 'Fournisseurs | MedTrack Cloud'
       },
       {
-        path:'alerts',
-        component:AlertsComponent,
-        title:'Angular Alerts Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        path: 'commandes',
+        component: CommandesListComponent,
+        canActivate: [roleGuard],
+        data: { roles: ['ADMIN', 'COMMERCIAL'] },
+        title: 'Commandes | MedTrack Cloud'
       },
       {
-        path:'avatars',
-        component:AvatarElementComponent,
-        title:'Angular Avatars Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        path: 'calendar',
+        component: CalenderComponent,
+        title: 'Angular Calender | TailAdmin - Angular Admin Dashboard Template'
       },
       {
-        path:'badge',
-        component:BadgesComponent,
-        title:'Angular Badges Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        path: 'profile',
+        component: ProfileComponent,
+        title: 'Angular Profile Dashboard | TailAdmin - Angular Admin Dashboard Template'
       },
       {
-        path:'buttons',
-        component:ButtonsComponent,
-        title:'Angular Buttons Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        path: 'form-elements',
+        component: FormElementsComponent,
+        title: 'Angular Form Elements Dashboard | TailAdmin - Angular Admin Dashboard Template'
       },
       {
-        path:'images',
-        component:ImagesComponent,
-        title:'Angular Images Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        path: 'basic-tables',
+        component: BasicTablesComponent,
+        title: 'Angular Basic Tables Dashboard | TailAdmin - Angular Admin Dashboard Template'
       },
       {
-        path:'videos',
-        component:VideosComponent,
-        title:'Angular Videos Dashboard | TailAdmin - Angular Admin Dashboard Template'
+        path: 'blank',
+        component: BlankComponent,
+        title: 'Angular Blank Dashboard | TailAdmin - Angular Admin Dashboard Template'
+      },
+      {
+        path: 'invoice',
+        component: InvoicesComponent,
+        title: 'Angular Invoice Details Dashboard | TailAdmin - Angular Admin Dashboard Template'
+      },
+      {
+        path: 'line-chart',
+        component: LineChartComponent,
+        title: 'Angular Line Chart Dashboard | TailAdmin - Angular Admin Dashboard Template'
+      },
+      {
+        path: 'bar-chart',
+        component: BarChartComponent,
+        title: 'Angular Bar Chart Dashboard | TailAdmin - Angular Admin Dashboard Template'
+      },
+      {
+        path: 'alerts',
+        component: AlertsComponent,
+        title: 'Angular Alerts Dashboard | TailAdmin - Angular Admin Dashboard Template'
+      },
+      {
+        path: 'avatars',
+        component: AvatarElementComponent,
+        title: 'Angular Avatars Dashboard | TailAdmin - Angular Admin Dashboard Template'
+      },
+      {
+        path: 'badge',
+        component: BadgesComponent,
+        title: 'Angular Badges Dashboard | TailAdmin - Angular Admin Dashboard Template'
+      },
+      {
+        path: 'buttons',
+        component: ButtonsComponent,
+        title: 'Angular Buttons Dashboard | TailAdmin - Angular Admin Dashboard Template'
+      },
+      {
+        path: 'images',
+        component: ImagesComponent,
+        title: 'Angular Images Dashboard | TailAdmin - Angular Admin Dashboard Template'
+      },
+      {
+        path: 'videos',
+        component: VideosComponent,
+        title: 'Angular Videos Dashboard | TailAdmin - Angular Admin Dashboard Template'
       },
     ]
   },
-  // auth pages
+  { path: 'signin', component: SignInComponent, canActivate: [guestGuard], title: 'Sign In | MedTrack Cloud' },
+  { path: 'signup', component: SignUpComponent, canActivate: [guestGuard], title: 'Sign Up | MedTrack Cloud' },
+  { path: 'reset-password', component: ForgotPasswordComponent, title: 'Mot de passe oublié | MedTrack Cloud' },
+{ path: 'create-password', component: CreatePasswordComponent, title: 'Créer mon mot de passe | MedTrack Cloud' },
+  { path: 'scan/:id', component: ScanAppareilComponent, title: 'Scan appareil | MedTrack Cloud' },
   {
-    path:'signin',
-    component:SignInComponent,
-    title:'Angular Sign In Dashboard | TailAdmin - Angular Admin Dashboard Template'
-  },
-  {
-    path:'signup',
-    component:SignUpComponent,
-    title:'Angular Sign Up Dashboard | TailAdmin - Angular Admin Dashboard Template'
-  },
-  // error pages
-  {
-    path:'**',
-    component:NotFoundComponent,
-    title:'Angular NotFound Dashboard | TailAdmin - Angular Admin Dashboard Template'
+    path: '**',
+    component: NotFoundComponent,
+    title: 'Angular NotFound Dashboard | TailAdmin - Angular Admin Dashboard Template'
   },
 ];

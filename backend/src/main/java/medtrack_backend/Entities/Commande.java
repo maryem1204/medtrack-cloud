@@ -1,5 +1,6 @@
 package medtrack_backend.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class Commande {
     @Enumerated(EnumType.STRING)
     private StatutCommande statut;
 
+    @JsonIgnoreProperties("commandes")
     @ManyToOne
     @JoinColumn(name = "fournisseur_id")
     private Fournisseur fournisseur;
@@ -42,4 +44,11 @@ public class Commande {
     public void setFournisseur(Fournisseur fournisseur) { this.fournisseur = fournisseur; }
     public List<LigneCommande> getLignes() { return lignes; }
     public void setLignes(List<LigneCommande> lignes) { this.lignes = lignes; }
+
+    @ManyToOne
+    @JoinColumn(name = "cree_par_id")
+    private Utilisateur creePar;
+
+    public Utilisateur getCreePar() { return creePar; }
+    public void setCreePar(Utilisateur creePar) { this.creePar = creePar; }
 }

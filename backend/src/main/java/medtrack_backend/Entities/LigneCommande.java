@@ -1,5 +1,6 @@
 package medtrack_backend.Entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
@@ -10,6 +11,7 @@ public class LigneCommande {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnoreProperties("lignes")
     @ManyToOne
     @JoinColumn(name = "commande_id")
     private Commande commande;
