@@ -1,67 +1,250 @@
 <div class="space-y-6">
 
-  <!-- Carte stat -->
-  <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-    <div class="flex items-center gap-4">
-      <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-brand-50 dark:bg-brand-500/15">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h1m4 0h1m-6 4h1m4 0h1m-6 4h1m4 0h1" stroke="#0d8f9e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <!-- En-tête + indicateurs clés -->
+  <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+    <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-500/15 shrink-0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h1m4 0h1m-6 4h1m4 0h1m-6 4h1m4 0h1" stroke="#0d8f9e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">Total</p>
+          <p class="text-xl font-bold text-gray-800 dark:text-white/90">{{ fournisseurs.length }}</p>
+        </div>
       </div>
-      <div>
-        <p class="text-sm text-gray-500 dark:text-gray-400">Total fournisseurs</p>
-        <p class="text-2xl font-bold text-gray-800 dark:text-white/90">{{ fournisseurs.length }}</p>
+    </div>
+    <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-green-50 dark:bg-green-500/15 shrink-0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M22 11.1V12a10 10 0 11-5.9-9.1" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round"/><path d="M22 4L12 14.01l-3-3" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">Actifs</p>
+          <p class="text-xl font-bold text-gray-800 dark:text-white/90">{{ kpiActifs }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-red-50 dark:bg-red-500/15 shrink-0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.3 3.9L2.7 17a2 2 0 001.7 3h15.2a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="#dc2626" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">À surveiller</p>
+          <p class="text-xl font-bold text-gray-800 dark:text-white/90">{{ kpiASurveiller }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-500/15 shrink-0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.9 6.3 6.9.6-5.2 4.6 1.6 6.8L12 16.9l-6.2 3.4 1.6-6.8-5.2-4.6 6.9-.6L12 2z" stroke="#d97706" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">Excellents</p>
+          <p class="text-xl font-bold text-gray-800 dark:text-white/90">{{ kpiExcellents }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03] col-span-2 lg:col-span-1">
+      <div class="flex items-center gap-3">
+        <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-brand-50 dark:bg-brand-500/15 shrink-0">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zM2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20" stroke="#0d8f9e" stroke-width="1.6"/></svg>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs text-gray-500 dark:text-gray-400 truncate">Pays couverts</p>
+          <p class="text-xl font-bold text-gray-800 dark:text-white/90">{{ kpiPaysDistincts }}</p>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Barre d'outils -->
   <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-    <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-      <div class="relative w-full sm:w-80">
+    <div class="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+      <div class="relative w-full lg:w-80">
         <span class="absolute -translate-y-1/2 left-4 top-1/2">
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M9 16A7 7 0 109 2a7 7 0 000 14zM18 18l-4-4" stroke="#9ca3af" stroke-width="1.6" stroke-linecap="round"/></svg>
         </span>
-        <input [(ngModel)]="searchTerm" type="text" placeholder="Rechercher (nom, pays, contact)..."
-          class="h-11 w-full rounded-lg border border-gray-200 bg-transparent pl-11 pr-4 text-sm text-gray-800 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:text-white/90" />
+        <input [ngModel]="searchInput" (ngModelChange)="onSearchInput($event)" type="text" placeholder="Rechercher (nom, pays, contact)..."
+          class="h-11 w-full rounded-lg border border-gray-200 bg-transparent pl-11 pr-9 text-sm text-gray-800 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:text-white/90" />
+        @if (searchInput) {
+          <button (click)="effacerRecherche()" class="absolute -translate-y-1/2 right-3 top-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        }
       </div>
-      <button *appHasPermission="['fournisseurs', 'create']" (click)="ouvrirModal()" class="h-11 px-5 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors">
-        + Ajouter un fournisseur
-      </button>
-    </div>
-  </div>
 
-  <!-- Graphique répartition par pays -->
-  <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-    <h3 class="text-base font-semibold text-gray-800 dark:text-white/90 mb-5">Fournisseurs par pays</h3>
-    @if (!loading && repartitionParPays().length > 0) {
-      <div class="space-y-3">
-        @for (p of repartitionParPays(); track p.pays) {
-          <div class="flex items-center gap-3">
-            <span class="w-28 shrink-0 text-sm text-gray-600 dark:text-gray-400 truncate">{{ drapeauPays(p.pays) }} {{ p.pays }}</span>
-            <div class="flex-1 h-6 rounded-full bg-gray-100 dark:bg-white/[0.05] overflow-hidden">
-              <div class="h-full rounded-full bg-brand-500 transition-all duration-500 flex items-center justify-end pr-2"
-                   [style.width.%]="(p.count / maxCount()) * 100">
-                <span class="text-xs font-semibold text-white">{{ p.count }}</span>
-              </div>
-            </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Bouton filtres -->
+        <button (click)="showFiltres = !showFiltres"
+          class="h-11 px-4 rounded-lg border text-sm font-medium flex items-center gap-2 transition-colors"
+          [ngClass]="showFiltres || nombreFiltresActifs > 0 ? 'border-brand-300 bg-brand-50 text-brand-700 dark:border-brand-500/40 dark:bg-brand-500/10 dark:text-brand-400' : 'border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-white/[0.03]'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          Filtres
+          @if (nombreFiltresActifs > 0) {
+            <span class="flex items-center justify-center w-5 h-5 rounded-full bg-brand-500 text-white text-[11px] font-semibold">{{ nombreFiltresActifs }}</span>
+          }
+        </button>
+
+        <!-- Toggle vue cartes / tableau -->
+        <div class="h-11 flex items-center rounded-lg border border-gray-200 p-1 dark:border-gray-800">
+          <button (click)="changerVue('cartes')"
+            class="h-9 px-3 rounded-md text-sm font-medium flex items-center gap-1.5 transition-colors"
+            [ngClass]="vue === 'cartes' ? 'bg-brand-500 text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="13" y="3" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="3" y="13" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.8"/><rect x="13" y="13" width="8" height="8" rx="1.5" stroke="currentColor" stroke-width="1.8"/></svg>
+            Cartes
+          </button>
+          <button (click)="changerVue('tableau')"
+            class="h-9 px-3 rounded-md text-sm font-medium flex items-center gap-1.5 transition-colors"
+            [ngClass]="vue === 'tableau' ? 'bg-brand-500 text-white' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 5h18M3 12h18M3 19h18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Tableau
+          </button>
+        </div>
+
+        <button (click)="exporterCsv()"
+          class="h-11 px-4 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50 flex items-center gap-2 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-white/[0.03]">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          CSV
+        </button>
+
+        <button *appHasPermission="['fournisseurs', 'create']" (click)="ouvrirModal()" class="h-11 px-5 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors">
+          + Ajouter un fournisseur
+        </button>
+      </div>
+    </div>
+
+    <!-- Panneau de filtres -->
+    @if (showFiltres) {
+      <div class="mt-5 pt-5 border-t border-gray-100 dark:border-gray-800 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2.5">Pays</p>
+          <div class="flex flex-wrap gap-2 max-h-32 overflow-y-auto pr-1">
+            @for (p of paysUtilises(); track p) {
+              <button type="button" (click)="toggleFiltrePays(p)"
+                class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors flex items-center gap-1.5"
+                [ngClass]="paysSelectionnes.includes(p) ? 'bg-brand-500 border-brand-500 text-white' : 'border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.05]'">
+                {{ drapeauPays(p) }} {{ p }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2.5">Statut</p>
+          <div class="flex gap-2">
+            @for (s of statutOptions; track s.v) {
+              <button type="button" (click)="choisirStatut(s.v)"
+                class="flex-1 h-9 rounded-lg text-xs font-medium transition-colors"
+                [ngClass]="statutFiltre === s.v ? 'bg-brand-500 text-white' : 'border border-gray-200 text-gray-600 dark:border-gray-700 dark:text-gray-300'">
+                {{ s.l }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2.5">Score de fiabilité</p>
+          <select [(ngModel)]="scoreFiltreValeur" (ngModelChange)="page = 1"
+            class="h-9 w-full rounded-lg border border-gray-200 bg-transparent px-3 text-sm dark:border-gray-800 dark:text-white/90">
+            <option value="tous">Tous les scores</option>
+            <option value="excellent">★ Excellent</option>
+            <option value="bon">Bon</option>
+            <option value="surveiller">⚠ À surveiller</option>
+            <option value="nouveau">Nouveau</option>
+          </select>
+        </div>
+
+        @if (nombreFiltresActifs > 0) {
+          <div class="md:col-span-3">
+            <button (click)="reinitialiserFiltres()" class="text-sm font-medium text-brand-600 hover:underline dark:text-brand-400">
+              Réinitialiser les filtres
+            </button>
           </div>
         }
       </div>
+    }
+  </div>
+
+  <!-- Répartition par pays : barre segmentée + légende (scalable à N pays) -->
+  <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+    <div class="flex items-center justify-between mb-1">
+      <h3 class="text-base font-semibold text-gray-800 dark:text-white/90">Fournisseurs par pays</h3>
+      @if (paysLeader) {
+        <span class="text-xs font-medium text-gray-500 dark:text-gray-400 flex items-center gap-1">
+          🏆 Leader : {{ drapeauPays(paysLeader.pays) }} {{ paysLeader.pays }} ({{ paysLeader.pct }}%)
+        </span>
+      }
+    </div>
+
+    @if (!loading && repartitionParPays().length > 0) {
+      <p class="text-sm text-gray-400 mb-4">{{ repartitionParPays().length }} pays représentés</p>
+
+      <!-- Barre proportionnelle unique, segmentée par pays -->
+      <div class="flex w-full h-4 rounded-full overflow-hidden bg-gray-100 dark:bg-white/[0.05]">
+        @for (p of repartitionEnrichie(); track p.pays) {
+          <div class="h-full first:rounded-l-full last:rounded-r-full transition-all duration-500 hover:opacity-80"
+               [style.width.%]="p.pct" [style.background-color]="p.couleur"
+               [attr.title]="p.pays + ' — ' + p.count + ' (' + p.pct + '%)'">
+          </div>
+        }
+      </div>
+
+      <!-- Légende en grille compacte, triée par volume décroissant -->
+      <div class="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2.5">
+        @for (p of paysAffichesDansLegende(); track p.pays) {
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="w-2.5 h-2.5 rounded-full shrink-0" [style.background-color]="p.couleur"></span>
+            <span class="text-sm text-gray-600 dark:text-gray-300 truncate flex-1">{{ drapeauPays(p.pays) }} {{ p.pays }}</span>
+            <span class="text-sm font-semibold text-gray-800 dark:text-white/90 shrink-0">{{ p.count }}</span>
+            <span class="text-xs text-gray-400 shrink-0 w-12 text-right">{{ p.pct }}%</span>
+          </div>
+        }
+      </div>
+
+      @if (nombrePaysMasques > 0 || showTousLesPays) {
+        <button (click)="showTousLesPays = !showTousLesPays"
+          class="mt-4 text-sm font-medium text-brand-600 hover:underline dark:text-brand-400">
+          {{ showTousLesPays ? 'Afficher moins' : 'Afficher les ' + nombrePaysMasques + ' autres pays' }}
+        </button>
+      }
     } @else {
       <p class="text-sm text-gray-400">Aucune donnée à afficher.</p>
     }
   </div>
 
-  <!-- Grille de cards fournisseurs -->
+  <!-- Chargement (skeleton) -->
   @if (loading) {
-    <p class="text-gray-500 dark:text-gray-400">Chargement...</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] animate-pulse">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-gray-200 dark:bg-white/10"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-3.5 w-2/3 rounded bg-gray-200 dark:bg-white/10"></div>
+              <div class="h-3 w-1/3 rounded bg-gray-200 dark:bg-white/10"></div>
+            </div>
+          </div>
+          <div class="mt-4 h-8 rounded bg-gray-100 dark:bg-white/[0.05]"></div>
+          <div class="mt-3 h-8 rounded bg-gray-100 dark:bg-white/[0.05]"></div>
+        </div>
+      }
+    </div>
   } @else if (fournisseursFiltres().length === 0) {
     <div class="rounded-2xl border border-gray-200 bg-white p-10 text-center dark:border-gray-800 dark:bg-white/[0.03]">
       <p class="text-gray-500 dark:text-gray-400">Aucun fournisseur ne correspond à ta recherche.</p>
+      @if (nombreFiltresActifs > 0 || searchTerm) {
+        <button (click)="reinitialiserFiltres()" class="mt-3 text-sm font-medium text-brand-600 hover:underline dark:text-brand-400">
+          Réinitialiser la recherche et les filtres
+        </button>
+      }
     </div>
-  } @else {
+  } @else if (vue === 'cartes') {
+    <!-- Grille de cards fournisseurs -->
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
       @for (f of fournisseursPage; track f.id) {
-        <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+        <div (click)="ouvrirDetail(f)" class="cursor-pointer rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
           <div class="flex items-center gap-3">
             <div class="flex items-center justify-center w-12 h-12 rounded-full text-white font-semibold text-sm shrink-0"
                  [style.background-color]="couleurAvatar(f.nom)">
@@ -86,7 +269,7 @@
             }
           </div>
 
-          <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800">
+          <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800" (click)="$event.stopPropagation()">
             @if (estEmail(f.contact)) {
               <a [href]="'mailto:' + f.contact"
                 class="flex items-center gap-2 text-sm text-brand-600 dark:text-brand-400 hover:underline">
@@ -102,7 +285,7 @@
             }
           </div>
 
-          <div class="mt-4 flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-gray-800">
+          <div class="mt-4 flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-gray-800" (click)="$event.stopPropagation()">
             <button (click)="modifier(f)" *appHasPermission="['fournisseurs', 'update']"
               class="flex-1 h-9 flex items-center justify-center gap-1.5 rounded-lg text-sm font-medium text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-500/10 transition-colors">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M11 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -116,6 +299,77 @@
           </div>
         </div>
       }
+    </div>
+  } @else {
+    <!-- Vue tableau -->
+    <div class="rounded-2xl border border-gray-200 bg-white overflow-x-auto dark:border-gray-800 dark:bg-white/[0.03]">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-100 dark:border-gray-800">
+            <th (click)="trier('nom')" class="cursor-pointer select-none px-5 py-3 text-left font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+              Fournisseur {{ iconeTri('nom') }}
+            </th>
+            <th (click)="trier('pays')" class="cursor-pointer select-none px-5 py-3 text-left font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+              Pays {{ iconeTri('pays') }}
+            </th>
+            <th class="px-5 py-3 text-left font-semibold text-gray-500 dark:text-gray-400">Contact</th>
+            <th (click)="trier('score')" class="cursor-pointer select-none px-5 py-3 text-left font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+              Score {{ iconeTri('score') }}
+            </th>
+            <th (click)="trier('commandes')" class="cursor-pointer select-none px-5 py-3 text-left font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+              Commandes {{ iconeTri('commandes') }}
+            </th>
+            <th (click)="trier('inactivite')" class="cursor-pointer select-none px-5 py-3 text-left font-semibold text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+              Dernière activité {{ iconeTri('inactivite') }}
+            </th>
+            <th class="px-5 py-3 text-right font-semibold text-gray-500 dark:text-gray-400">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (f of fournisseursPage; track f.id) {
+            <tr (click)="ouvrirDetail(f)" class="cursor-pointer border-b border-gray-50 last:border-0 hover:bg-gray-50 dark:border-white/5 dark:hover:bg-white/[0.03]">
+              <td class="px-5 py-3">
+                <div class="flex items-center gap-2.5">
+                  <div class="flex items-center justify-center w-8 h-8 rounded-full text-white font-semibold text-xs shrink-0"
+                       [style.background-color]="couleurAvatar(f.nom)">
+                    {{ initiales(f.nom) }}
+                  </div>
+                  <span class="font-medium text-gray-800 dark:text-white/90">{{ f.nom }}</span>
+                </div>
+              </td>
+              <td class="px-5 py-3 text-gray-600 dark:text-gray-400">{{ drapeauPays(f.pays) }} {{ f.pays }}</td>
+              <td class="px-5 py-3 text-gray-600 dark:text-gray-400">{{ f.contact }}</td>
+              <td class="px-5 py-3">
+                <span class="px-2.5 py-1 rounded-full text-xs font-medium" [ngClass]="scoreFournisseur(f).classe">
+                  {{ scoreFournisseur(f).label }}
+                </span>
+              </td>
+              <td class="px-5 py-3 text-gray-600 dark:text-gray-400">{{ commandesDe(f.id).length }}</td>
+              <td class="px-5 py-3 text-gray-600 dark:text-gray-400">
+                @if (moisInactivite(f) === null) {
+                  <span class="text-gray-400">—</span>
+                } @else if (estInactif(f)) {
+                  <span class="text-amber-600 dark:text-amber-400">⚠ {{ moisInactivite(f) }} mois</span>
+                } @else {
+                  <span>Il y a {{ moisInactivite(f) }} mois</span>
+                }
+              </td>
+              <td class="px-5 py-3" (click)="$event.stopPropagation()">
+                <div class="flex items-center justify-end gap-1">
+                  <button (click)="modifier(f)" *appHasPermission="['fournisseurs', 'update']"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-500/10 transition-colors">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M11 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                  <button (click)="demanderSuppression(f)" *appHasPermission="['fournisseurs', 'delete']"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10 transition-colors">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
   }
 
@@ -247,6 +501,111 @@
           <button (click)="confirmerSuppression()" class="h-10 px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium">Supprimer</button>
         </div>
       </div>
+    </div>
+  }
+
+  <!-- Panneau latéral : fiche détaillée du fournisseur -->
+  @if (showDetail && fournisseurDetail) {
+    <div class="fixed inset-0 z-99999 flex justify-end bg-black/40" (click)="fermerDetail()">
+      <div class="h-full w-full max-w-md overflow-y-auto bg-white p-6 dark:bg-gray-900" (click)="$event.stopPropagation()">
+        <div class="flex items-start justify-between">
+          <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center w-14 h-14 rounded-full text-white font-semibold text-lg shrink-0"
+                 [style.background-color]="couleurAvatar(fournisseurDetail.nom)">
+              {{ initiales(fournisseurDetail.nom) }}
+            </div>
+            <div>
+              <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">{{ fournisseurDetail.nom }}</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ drapeauPays(fournisseurDetail.pays) }} {{ fournisseurDetail.pays }}</p>
+            </div>
+          </div>
+          <button (click)="fermerDetail()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+
+        <div class="mt-4 flex flex-wrap gap-2">
+          <span class="px-2.5 py-1 rounded-full text-xs font-medium" [ngClass]="scoreFournisseur(fournisseurDetail).classe">
+            {{ scoreFournisseur(fournisseurDetail).label }}
+          </span>
+          @if (estInactif(fournisseurDetail)) {
+            <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-400">
+              ⚠ Inactif depuis {{ moisInactivite(fournisseurDetail) }} mois
+            </span>
+          }
+        </div>
+
+        <div class="mt-5 grid grid-cols-2 gap-3">
+          <div class="rounded-xl border border-gray-200 p-3 dark:border-gray-800">
+            <p class="text-xs text-gray-500 dark:text-gray-400">Commandes totales</p>
+            <p class="text-xl font-bold text-gray-800 dark:text-white/90">{{ commandesDe(fournisseurDetail.id).length }}</p>
+          </div>
+          <div class="rounded-xl border border-gray-200 p-3 dark:border-gray-800">
+            <p class="text-xs text-gray-500 dark:text-gray-400">Dernière activité</p>
+            <p class="text-xl font-bold text-gray-800 dark:text-white/90">
+              {{ moisInactivite(fournisseurDetail) !== null ? moisInactivite(fournisseurDetail) + ' mois' : '—' }}
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-5">
+          <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Contact</p>
+          @if (estEmail(fournisseurDetail.contact)) {
+            <a [href]="'mailto:' + fournisseurDetail.contact" class="flex items-center gap-2 text-sm text-brand-600 dark:text-brand-400 hover:underline">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 4h16v16H4V4z" stroke="currentColor" stroke-width="1.6"/><path d="M4 6l8 7 8-7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              {{ fournisseurDetail.contact }}
+            </a>
+          } @else {
+            <a [href]="'tel:' + fournisseurDetail.contact" class="flex items-center gap-2 text-sm text-brand-600 dark:text-brand-400 hover:underline">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M22 16.9v3a2 2 0 01-2.2 2 19.8 19.8 0 01-8.6-3.1 19.5 19.5 0 01-6-6A19.8 19.8 0 012.1 4.2 2 2 0 014.1 2h3a2 2 0 012 1.7c.1 1 .3 2 .6 2.9a2 2 0 01-.5 2.1L8 10a16 16 0 006 6l1.3-1.3a2 2 0 012.1-.5c.9.3 1.9.5 2.9.6a2 2 0 011.7 2.1z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              {{ fournisseurDetail.contact }}
+            </a>
+          }
+        </div>
+
+        <div class="mt-6">
+          <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Historique des commandes</p>
+          @if (commandesDe(fournisseurDetail.id).length === 0) {
+            <p class="text-sm text-gray-400">Aucune commande enregistrée pour ce fournisseur.</p>
+          } @else {
+            <div class="space-y-2">
+              @for (c of commandesDe(fournisseurDetail.id); track c.id) {
+                <div class="flex items-center justify-between rounded-lg border border-gray-100 px-3 py-2 text-sm dark:border-gray-800">
+                  <span class="text-gray-600 dark:text-gray-400">{{ c.dateCommande | date:'dd/MM/yyyy' }}</span>
+                  <span class="px-2 py-0.5 rounded-full text-xs font-medium"
+                    [ngClass]="c.statut === 'ANNULEE' ? 'bg-red-50 text-red-700 dark:bg-red-500/15 dark:text-red-400' : 'bg-green-50 text-green-700 dark:bg-green-500/15 dark:text-green-400'">
+                    {{ c.statut }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mt-6 flex gap-3">
+          <button (click)="fermerDetail(); modifier(fournisseurDetail)" *appHasPermission="['fournisseurs', 'update']"
+            class="flex-1 h-10 rounded-lg text-sm font-medium text-brand-600 border border-brand-200 hover:bg-brand-50 dark:text-brand-400 dark:border-brand-500/30 dark:hover:bg-brand-500/10">
+            Modifier
+          </button>
+          <button (click)="fermerDetail(); demanderSuppression(fournisseurDetail)" *appHasPermission="['fournisseurs', 'delete']"
+            class="flex-1 h-10 rounded-lg text-sm font-medium text-red-600 border border-red-200 hover:bg-red-50 dark:text-red-400 dark:border-red-500/30 dark:hover:bg-red-500/10">
+            Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Notification toast -->
+  @if (toast) {
+    <div class="fixed bottom-6 right-6 z-99999 flex items-center gap-3 rounded-xl px-4 py-3 shadow-lg text-sm font-medium text-white"
+      [ngClass]="toast.type === 'success' ? 'bg-green-600' : toast.type === 'error' ? 'bg-red-600' : 'bg-gray-800'">
+      @if (toast.type === 'success') {
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 11.1V12a10 10 0 11-5.9-9.1" stroke="white" stroke-width="1.8" stroke-linecap="round"/><path d="M22 4L12 14.01l-3-3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      } @else if (toast.type === 'error') {
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.3 3.9L2.7 17a2 2 0 001.7 3h15.2a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      }
+      {{ toast.message }}
     </div>
   }
 </div>

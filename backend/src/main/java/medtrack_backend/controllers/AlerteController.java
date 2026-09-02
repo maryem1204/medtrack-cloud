@@ -7,65 +7,62 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/alertes")
 public class AlerteController {
+
     @Autowired private AlerteRepository repo;
     @Autowired private MaintenanceRepository maintenanceRepo;
 
     @GetMapping public List<Alerte> getAll() { return repo.findAll(); }
 
-    @PostMapping public Alerte create(@RequestBody Alerte a) { return repo.save(a); }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Alerte> update(@PathVariable Long id, @RequestBody Alerte updated) {
-        return repo.findById(id).map(existing -> {
-            existing.setStatut(updated.getStatut());
-            return ResponseEntity.ok(repo.save(existing));
-        }).orElse(ResponseEntity.notFound().build());
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        if (!repo.existsById(id)) return ResponseEntity.notFound().build();
-        repo.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    // Génère (ou met à jour) les alertes réelles à partir des maintenances planifiées urgentes/en retard
     @PostMapping("/generer")
-    public List<Alerte> genererAlertes() {
-        List<Maintenance> planifiees = maintenanceRepo.findAll().stream()
-                .filter(m -> m.getStatut() == StatutMaintenance.PLANIFIEE)
-                .toList();
-
-        List<Alerte> existantes = repo.findAll();
+    public ResponseEntity<?> generer() {
+        List<Maintenance> planifiees = maintenanceRepo.findByStatut(StatutMaintenance.PLANIFIEE);
+        int creees = 0;
 
         for (Maintenance m : planifiees) {
-            if (m.getAppareil() == null || m.getDatePrevue() == null) continue;
-            long joursRestants = LocalDate.now().until(m.getDatePrevue()).getDays();
-            boolean urgente = joursRestants <= 7;
-            if (!urgente) continue;
+            long jours = java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), m.getDatePrevue());
+            boolean concernee = jours <= 7; // urgente ou en retard
 
-            String type = joursRestants < 0 ? "MAINTENANCE_RETARD" : "MAINTENANCE_URGENTE";
+            if (!concernee) continue;
 
-            boolean dejaExistante = existantes.stream().anyMatch(a ->
-                    a.getAppareil() != null &&
-                            a.getAppareil().getId().equals(m.getAppareil().getId()) &&
-                            a.getType().equals(type) &&
-                            "ACTIVE".equals(a.getStatut())
-            );
+            // On ne crée une alerte QUE si aucune alerte ACTIVE n'existe déjà pour CETTE maintenance précise
+            boolean dejaAlerte = repo.existsByMaintenance_IdAndStatut(m.getId(), StatutAlerte.ACTIVE);
+            if (dejaAlerte) continue;
 
-            if (!dejaExistante) {
-                Alerte a = new Alerte();
-                a.setAppareil(m.getAppareil());
-                a.setType(type);
-                a.setDateDeclenchement(LocalDate.now());
-                a.setStatut("ACTIVE");
-                repo.save(a);
+            Alerte a = new Alerte();
+            a.setAppareil(m.getAppareil());
+            a.setMaintenance(m);
+            a.setType(jours < 0 ? TypeAlerte.MAINTENANCE_RETARD : TypeAlerte.MAINTENANCE_URGENTE);
+            a.setStatut(StatutAlerte.ACTIVE);
+            a.setDateDeclenchement(LocalDate.now());
+            repo.save(a);
+            creees++;
+        }
+        return ResponseEntity.ok(Map.of("alertesCreees", creees));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        Alerte alerte = repo.findById(id).orElse(null);
+        if (alerte == null) return ResponseEntity.notFound().build();
+
+        String nouveauStatut = body.get("statut");
+        if ("TRAITEE".equals(nouveauStatut)) {
+            alerte.setStatut(StatutAlerte.TRAITEE);
+            repo.save(alerte);
+
+            // 🔑 LA CORRECTION : on clôture aussi la maintenance liée, sinon elle reste "en retard" pour toujours
+            if (alerte.getMaintenance() != null) {
+                Maintenance m = alerte.getMaintenance();
+                m.setStatut(StatutMaintenance.TERMINEE);
+                m.setDateRealisee(LocalDate.now());
+                maintenanceRepo.save(m);
             }
         }
-        return repo.findAll();
+        return ResponseEntity.ok(alerte);
     }
 }

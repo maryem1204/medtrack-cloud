@@ -17,9 +17,27 @@ export class MaintenanceListComponent implements OnInit {
   techniciens: Utilisateur[] = [];
   loading = true;
 
+  // ── Filtres ──────────────────────────────────────────────────────────────
+  showFiltres = false;
+
+  private _searchTerm = '';
+  get searchTerm() { return this._searchTerm; }
+  set searchTerm(v: string) { this._searchTerm = v; this.page = 1; }
+
   private _filtreStatut = '';
   get filtreStatut() { return this._filtreStatut; }
   set filtreStatut(v: string) { this._filtreStatut = v; this.page = 1; }
+
+  get filtresActifs(): boolean {
+    return !!(this._searchTerm || this._filtreStatut);
+  }
+
+  reinitialiserFiltres() {
+    this._searchTerm = '';
+    this._filtreStatut = '';
+    this.showFiltres = false;
+    this.page = 1;
+  }
 
   page = 1;
   pageSize = 6;
@@ -72,7 +90,16 @@ export class MaintenanceListComponent implements OnInit {
   }
 
   maintenancesFiltrees(): Maintenance[] {
-    return this.maintenances.filter(m => !this.filtreStatut || m.statut === this.filtreStatut);
+    const term = this.searchTerm.toLowerCase();
+    return this.maintenances.filter(m => {
+      const matchSearch = !term ||
+        (m.appareil?.nom || '').toLowerCase().includes(term) ||
+        (m.appareil?.numeroSerie || '').toLowerCase().includes(term) ||
+        (m.technicien ? `${m.technicien.nom} ${m.technicien.prenom}` : '').toLowerCase().includes(term) ||
+        this.typeLabel(m.type).toLowerCase().includes(term);
+      const matchStatut = !this.filtreStatut || m.statut === this.filtreStatut;
+      return matchSearch && matchStatut;
+    });
   }
 
   countByStatut(statut: string): number {
@@ -93,9 +120,12 @@ export class MaintenanceListComponent implements OnInit {
   }
 
   ouvrirModal() {
-    this.nouvelleMaintenance = { datePrevue: '', type: 'CALIBRATION', statut: 'PLANIFIEE', appareilId: null, technicienId: null };
+    this.nouvelleMaintenance = { datePrevue: this.dateAujourdhui(), type: 'CALIBRATION', statut: 'PLANIFIEE', appareilId: null, technicienId: null };
     this.formErreur = '';
     this.showModal = true;
+  }
+    private dateAujourdhui(): string {
+    return new Date().toISOString().slice(0, 10);
   }
 
   fermerModal() { this.showModal = false; }
@@ -179,4 +209,25 @@ export class MaintenanceListComponent implements OnInit {
       .filter(m => m.statut === 'TERMINEE')
       .sort((a, b) => new Date(b.dateRealisee || 0).getTime() - new Date(a.dateRealisee || 0).getTime());
   }
+  vueMode: 'cartes' | 'tableau' = 'cartes';
+triColonne: 'appareil' | 'type' | 'datePrevue' | 'statut' = 'datePrevue';
+triSens: 'asc' | 'desc' = 'asc';
+
+changerTri(colonne: 'appareil' | 'type' | 'datePrevue' | 'statut') {
+  if (this.triColonne === colonne) this.triSens = this.triSens === 'asc' ? 'desc' : 'asc';
+  else { this.triColonne = colonne; this.triSens = 'asc'; }
+}
+
+get maintenancesTrieesPage(): Maintenance[] {
+  const src = [...this.maintenancesPage];
+  src.sort((a, b) => {
+    let cmp = 0;
+    if (this.triColonne === 'appareil') cmp = (a.appareil?.nom || '').localeCompare(b.appareil?.nom || '');
+    else if (this.triColonne === 'type') cmp = this.typeLabel(a.type).localeCompare(this.typeLabel(b.type));
+    else if (this.triColonne === 'datePrevue') cmp = (a.datePrevue || '').localeCompare(b.datePrevue || '');
+    else if (this.triColonne === 'statut') cmp = a.statut.localeCompare(b.statut);
+    return this.triSens === 'asc' ? cmp : -cmp;
+  });
+  return src;
+}
 }

@@ -15,11 +15,17 @@ public class Alerte {
     @JoinColumn(name = "appareil_id")
     private Appareil appareil;
 
-    private String type; // ex: "CALIBRATION_PROCHE"
+    @Enumerated(EnumType.STRING)
+    private TypeAlerte type;
 
     private LocalDate dateDeclenchement;
 
-    private String statut; // ACTIVE, TRAITEE
+    @Enumerated(EnumType.STRING)
+    private StatutAlerte statut;
+
+    @ManyToOne
+    @JoinColumn(name = "maintenance_id")
+    private Maintenance maintenance;
 
     public Alerte() {}
 
@@ -27,10 +33,12 @@ public class Alerte {
     public void setId(Long id) { this.id = id; }
     public Appareil getAppareil() { return appareil; }
     public void setAppareil(Appareil appareil) { this.appareil = appareil; }
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
+    public TypeAlerte getType() { return type; }
+    public void setType(TypeAlerte type) { this.type = type; }
     public LocalDate getDateDeclenchement() { return dateDeclenchement; }
     public void setDateDeclenchement(LocalDate dateDeclenchement) { this.dateDeclenchement = dateDeclenchement; }
-    public String getStatut() { return statut; }
-    public void setStatut(String statut) { this.statut = statut; }
+    public StatutAlerte getStatut() { return statut; }
+    public void setStatut(StatutAlerte statut) { this.statut = statut; }
+    public Maintenance getMaintenance() { return maintenance; }
+    public void setMaintenance(Maintenance maintenance) { this.maintenance = maintenance; }
 }

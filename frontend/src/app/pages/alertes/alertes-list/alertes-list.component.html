@@ -1,35 +1,145 @@
 <div class="space-y-6">
+
+  <!-- En-tête + résumé de gravité -->
   <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-    <div class="flex items-center justify-between">
+    <div class="flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Alertes actives</h3>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ alertes.length }} alerte(s) nécessitant une action</p>
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90">Centre de surveillance</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          {{ alertes.length }} alerte(s) active(s)
+          @if (derniereVerification) {
+            · dernière vérification {{ derniereVerification | date:'dd/MM à HH:mm' }}
+          }
+        </p>
       </div>
       <button (click)="genererAlertes()" [disabled]="generating"
-        class="h-11 px-5 rounded-lg bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white text-sm font-medium transition-colors">
-        {{ generating ? 'Analyse en cours...' : '🔄 Vérifier les échéances' }}
+        class="h-11 px-5 rounded-lg bg-brand-500 hover:bg-brand-600 disabled:opacity-60 text-white text-sm font-medium transition-colors flex items-center gap-2">
+        @if (generating) {
+          <svg class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+          Analyse en cours...
+        } @else {
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Vérifier les échéances
+        }
+      </button>
+    </div>
+
+    <!-- Barre de gravité -->
+    <div class="mt-5 grid grid-cols-3 gap-3">
+      <button (click)="filtreGravite = filtreGravite === 'CRITIQUE' ? 'TOUTES' : 'CRITIQUE'"
+        class="rounded-xl p-3.5 text-left transition-all border-2"
+        [class.border-red-500]="filtreGravite === 'CRITIQUE'" [class.bg-red-50]="filtreGravite === 'CRITIQUE'"
+        [class.dark:bg-red-500/10]="filtreGravite === 'CRITIQUE'" [class.border-transparent]="filtreGravite !== 'CRITIQUE'"
+        [class.bg-red-50/50]="filtreGravite !== 'CRITIQUE'" [class.dark:bg-red-500/5]="filtreGravite !== 'CRITIQUE'">
+        <div class="flex items-center gap-2">
+          <span class="relative flex h-2.5 w-2.5">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+          </span>
+          <span class="text-xs font-semibold text-red-700 dark:text-red-400">CRITIQUE</span>
+        </div>
+        <p class="mt-1.5 text-2xl font-bold text-gray-800 dark:text-white/90">{{ compterParGravite('CRITIQUE') }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400">retard ≥ 7 jours</p>
+      </button>
+
+      <button (click)="filtreGravite = filtreGravite === 'ELEVEE' ? 'TOUTES' : 'ELEVEE'"
+        class="rounded-xl p-3.5 text-left transition-all border-2"
+        [class.border-amber-500]="filtreGravite === 'ELEVEE'" [class.bg-amber-50]="filtreGravite === 'ELEVEE'"
+        [class.dark:bg-amber-500/10]="filtreGravite === 'ELEVEE'" [class.border-transparent]="filtreGravite !== 'ELEVEE'"
+        [class.bg-amber-50/50]="filtreGravite !== 'ELEVEE'" [class.dark:bg-amber-500/5]="filtreGravite !== 'ELEVEE'">
+        <div class="flex items-center gap-2">
+          <span class="h-2.5 w-2.5 rounded-full bg-amber-500"></span>
+          <span class="text-xs font-semibold text-amber-700 dark:text-amber-400">ÉLEVÉE</span>
+        </div>
+        <p class="mt-1.5 text-2xl font-bold text-gray-800 dark:text-white/90">{{ compterParGravite('ELEVEE') }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400">à traiter rapidement</p>
+      </button>
+
+      <button (click)="filtreGravite = filtreGravite === 'MODEREE' ? 'TOUTES' : 'MODEREE'"
+        class="rounded-xl p-3.5 text-left transition-all border-2"
+        [class.border-blue-500]="filtreGravite === 'MODEREE'" [class.bg-blue-50]="filtreGravite === 'MODEREE'"
+        [class.dark:bg-blue-500/10]="filtreGravite === 'MODEREE'" [class.border-transparent]="filtreGravite !== 'MODEREE'"
+        [class.bg-blue-50/50]="filtreGravite !== 'MODEREE'" [class.dark:bg-blue-500/5]="filtreGravite !== 'MODEREE'">
+        <div class="flex items-center gap-2">
+          <span class="h-2.5 w-2.5 rounded-full bg-blue-500"></span>
+          <span class="text-xs font-semibold text-blue-700 dark:text-blue-400">MODÉRÉE</span>
+        </div>
+        <p class="mt-1.5 text-2xl font-bold text-gray-800 dark:text-white/90">{{ compterParGravite('MODEREE') }}</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400">à surveiller</p>
       </button>
     </div>
   </div>
 
+  <!-- Recherche + actions groupées -->
+  @if (!loading && alertes.length > 0) {
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="relative flex-1 min-w-[200px]">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input [(ngModel)]="recherche" placeholder="Rechercher un appareil ou numéro de série..."
+          class="h-10 w-full rounded-lg border border-gray-200 bg-white dark:bg-transparent pl-9 pr-3 text-sm dark:border-gray-800 dark:text-white/90" />
+      </div>
+      @if (filtreGravite !== 'TOUTES') {
+        <button (click)="filtreGravite = 'TOUTES'" class="h-10 px-3 rounded-lg text-xs font-medium text-gray-500 hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-colors">
+          Voir toutes les alertes
+        </button>
+      }
+      @if (compterParGravite('MODEREE') > 0) {
+        <button (click)="traiterToutesModerees()" class="h-10 px-4 rounded-lg border border-gray-200 dark:border-gray-800 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/[0.05] transition-colors">
+          Traiter toutes les modérées
+        </button>
+      }
+    </div>
+  }
+
+  <!-- Liste des alertes -->
   @if (loading) {
-    <p class="text-gray-500 dark:text-gray-400">Chargement...</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+      @for (i of [1,2,3]; track i) {
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] animate-pulse h-40"></div>
+      }
+    </div>
   } @else if (alertes.length === 0) {
     <div class="rounded-2xl border border-gray-200 bg-white p-10 text-center dark:border-gray-800 dark:bg-white/[0.03]">
-      <p class="text-gray-500 dark:text-gray-400">Aucune alerte active. Clique sur "Vérifier les échéances" pour analyser les maintenances planifiées.</p>
+      <svg class="mx-auto text-green-500" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <p class="mt-3 text-gray-700 dark:text-gray-300 font-medium">Aucune alerte active</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Tout est sous contrôle. Cliquez sur "Vérifier les échéances" pour analyser les maintenances planifiées.</p>
+    </div>
+  } @else if (alertesFiltrees.length === 0) {
+    <div class="rounded-2xl border border-gray-200 bg-white p-10 text-center dark:border-gray-800 dark:bg-white/[0.03]">
+      <p class="text-gray-500 dark:text-gray-400">Aucune alerte ne correspond à ces critères.</p>
     </div>
   } @else {
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-      @for (a of alertes; track a.id) {
-        <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-          <span class="px-2.5 py-1 rounded-full text-xs font-medium" [ngClass]="typeClass(a.type)">
-            {{ typeLabel(a.type) }}
-          </span>
-          <h4 class="mt-3 text-base font-semibold text-gray-800 dark:text-white/90">{{ a.appareil?.nom || 'Appareil' }}</h4>
-          <p class="text-sm text-gray-500 dark:text-gray-400">N° série : {{ a.appareil?.numeroSerie }}</p>
-          <p class="mt-2 text-xs text-gray-400">Détectée le {{ a.dateDeclenchement }}</p>
+      @for (a of alertesFiltrees; track a.id) {
+        <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden hover:shadow-md transition-all"
+             [ngClass]="graviteConfig(gravite(a)).bordure">
+          <div class="p-5">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1.5" [ngClass]="graviteConfig(gravite(a)).badge">
+                @if (graviteConfig(gravite(a)).pulse) {
+                  <span class="relative flex h-1.5 w-1.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-current opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-current"></span>
+                  </span>
+                }
+                {{ graviteConfig(gravite(a)).label }}
+              </span>
+              <span class="text-xs text-gray-400">{{ typeLabel(a.type) }}</span>
+            </div>
+            <h4 class="mt-3 text-base font-semibold text-gray-800 dark:text-white/90">{{ a.appareil?.nom || 'Appareil' }}</h4>
+            <p class="text-sm text-gray-500 dark:text-gray-400">N° série : {{ a.appareil?.numeroSerie }}</p>
+            <p class="mt-2 text-xs font-medium" [ngClass]="{
+              'text-red-600 dark:text-red-400': gravite(a) === 'CRITIQUE',
+              'text-amber-600 dark:text-amber-400': gravite(a) === 'ELEVEE',
+              'text-blue-600 dark:text-blue-400': gravite(a) === 'MODEREE'
+            }">
+              {{ messageUrgence(a) }}
+            </p>
+          </div>
           <button (click)="marquerTraitee(a)"
-            class="mt-4 w-full h-9 flex items-center justify-center gap-1.5 rounded-lg text-sm font-medium text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-500/10 transition-colors border-t border-gray-100 dark:border-gray-800 pt-3">
+            class="w-full h-10 flex items-center justify-center gap-1.5 text-sm font-medium text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-500/10 transition-colors border-t border-gray-100 dark:border-gray-800">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Marquer comme traitée
           </button>

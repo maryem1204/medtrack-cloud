@@ -1,5 +1,24 @@
 <div class="space-y-6">
 
+  <!-- Toast -->
+  @if (toast) {
+    <div class="fixed top-5 right-5 z-[100000] flex items-center gap-2.5 rounded-xl px-4 py-3 shadow-lg text-sm font-medium"
+         [ngClass]="{
+           'bg-green-50 text-green-700 dark:bg-green-900/90 dark:text-green-300': toast.type === 'success',
+           'bg-red-50 text-red-700 dark:bg-red-900/90 dark:text-red-300': toast.type === 'error',
+           'bg-brand-50 text-brand-700 dark:bg-brand-900/90 dark:text-brand-300': toast.type === 'info'
+         }">
+      @if (toast.type === 'success') {
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      } @else if (toast.type === 'error') {
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      } @else {
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 8v.01M12 12v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/></svg>
+      }
+      {{ toast.message }}
+    </div>
+  }
+
   <!-- Cards statistiques -->
   <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
     <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
@@ -15,7 +34,7 @@
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
       <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">En stock</p>
-      <p class="mt-1 text-2xl font-bold text-gray-800 dark:text-white/90">{{ countByStatut('EN_STOCK') }}</p>
+      <p class="mt-1 text-2xl font-bold text-gray-800 dark:text-white/90">{{ kpiEnStock }}</p>
     </div>
 
     <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
@@ -23,7 +42,7 @@
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 3" stroke="#d97706" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="#d97706" stroke-width="2"/></svg>
       </div>
       <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">En maintenance</p>
-      <p class="mt-1 text-2xl font-bold text-gray-800 dark:text-white/90">{{ countByStatut('EN_MAINTENANCE') }}</p>
+      <p class="mt-1 text-2xl font-bold text-gray-800 dark:text-white/90">{{ kpiMaintenance }}</p>
     </div>
 
     <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
@@ -31,44 +50,227 @@
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/></svg>
       </div>
       <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">Hors service</p>
-      <p class="mt-1 text-2xl font-bold text-gray-800 dark:text-white/90">{{ countByStatut('HORS_SERVICE') }}</p>
+      <p class="mt-1 text-2xl font-bold text-gray-800 dark:text-white/90">{{ kpiHorsService }}</p>
+    </div>
+  </div>
+
+  <!-- Répartition + Insights -->
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+    <div class="xl:col-span-2 rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+      <h3 class="text-base font-semibold text-gray-800 dark:text-white/90 mb-5">Répartition par statut</h3>
+      @if (repartitionParStatut().length > 0) {
+        <div class="space-y-3">
+          @for (r of repartitionParStatut(); track r.statut) {
+            <div class="flex items-center gap-3">
+              <span class="w-32 shrink-0 text-sm text-gray-600 dark:text-gray-400">{{ r.label }}</span>
+              <div class="flex-1 h-6 rounded-full bg-gray-100 dark:bg-white/[0.05] overflow-hidden">
+                <div class="h-full rounded-full flex items-center justify-end pr-2 transition-all duration-500"
+                     [style.width.%]="r.pct" [style.background-color]="r.couleur">
+                  <span class="text-xs font-semibold text-white">{{ r.count }}</span>
+                </div>
+              </div>
+              <span class="w-10 shrink-0 text-right text-xs text-gray-400">{{ r.pct }}%</span>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="text-sm text-gray-400">Aucune donnée.</p>
+      }
+    </div>
+
+    <!-- Panneau Insights intelligents -->
+    <div class="rounded-2xl border border-gray-200 bg-gradient-to-br from-brand-500 to-brand-600 p-5 text-white relative overflow-hidden">
+      <div class="absolute -right-6 -top-6 w-28 h-28 rounded-full bg-white/10"></div>
+      <h3 class="text-sm font-semibold text-white/90 mb-4 relative flex items-center gap-1.5">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.2L22 12l-7.6 2.8L12 22l-2.4-7.2L2 12l7.6-2.8L12 2z" fill="white"/></svg>
+        Insights
+      </h3>
+      <div class="space-y-4 relative">
+        <div>
+          <p class="text-xs text-white/70">Taux de disponibilité</p>
+          <div class="mt-1 flex items-center gap-2">
+            <div class="flex-1 h-1.5 rounded-full bg-white/20 overflow-hidden">
+              <div class="h-full bg-white rounded-full" [style.width.%]="tauxDisponibilite"></div>
+            </div>
+            <span class="text-xs font-semibold">{{ tauxDisponibilite }}%</span>
+          </div>
+        </div>
+        <div>
+          <p class="text-xs text-white/70">Taux de maintenance</p>
+          <div class="mt-1 flex items-center gap-2">
+            <div class="flex-1 h-1.5 rounded-full bg-white/20 overflow-hidden">
+              <div class="h-full bg-white rounded-full" [style.width.%]="tauxMaintenance"></div>
+            </div>
+            <span class="text-xs font-semibold">{{ tauxMaintenance }}%</span>
+          </div>
+        </div>
+        @if (categorieDominante) {
+          <div>
+            <p class="text-xs text-white/70">Catégorie dominante</p>
+            <p class="text-sm font-medium">{{ categorieDominante!.nom }} — {{ categorieDominante!.pourcentage }}% du parc</p>
+          </div>
+        }
+        @if (importsCeMois > 0) {
+          <div class="bg-white/10 rounded-lg p-2.5">
+            <p class="text-xs">📦 {{ importsCeMois }} appareil(s) importé(s) ce mois-ci.</p>
+          </div>
+        }
+      </div>
     </div>
   </div>
 
   <!-- Barre d'outils -->
-  <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-    <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-      <div class="relative w-full sm:w-80">
-        <span class="absolute -translate-y-1/2 left-4 top-1/2">
-          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M9 16A7 7 0 109 2a7 7 0 000 14zM18 18l-4-4" stroke="#9ca3af" stroke-width="1.6" stroke-linecap="round"/></svg>
-        </span>
-        <input [(ngModel)]="searchTerm" type="text" placeholder="Rechercher un appareil..."
-          class="h-11 w-full rounded-lg border border-gray-200 bg-transparent pl-11 pr-4 text-sm text-gray-800 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:text-white/90" />
-      </div>
-      <div class="flex gap-3">
-        <select [(ngModel)]="filtreStatut" class="h-11 w-full rounded-lg border border-gray-200 bg-white dark:bg-gray-900 px-3 pr-10 text-sm text-gray-700 dark:border-gray-800 dark:text-white/90 appearance-none bg-no-repeat bg-[right_0.75rem_center] focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 transition-colors cursor-pointer"
+  <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] space-y-4">
+    <div class="flex flex-wrap gap-3 items-center justify-between">
+      <div class="flex flex-wrap gap-3 items-center">
+        <div class="relative w-full sm:w-64">
+          <span class="absolute -translate-y-1/2 left-4 top-1/2">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M9 16A7 7 0 109 2a7 7 0 000 14zM18 18l-4-4" stroke="#9ca3af" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </span>
+          <input [ngModel]="searchInput" (ngModelChange)="onSearchInput($event)" type="text" placeholder="Rechercher un appareil..."
+            class="h-11 w-full rounded-lg border border-gray-200 bg-transparent pl-11 pr-9 text-sm text-gray-800 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:text-white/90" />
+          @if (searchInput) {
+            <button (click)="effacerRecherche()" class="absolute -translate-y-1/2 right-3 top-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+          }
+        </div>
+
+        <!-- Bouton filtres -->
+        <button (click)="showFiltres = !showFiltres"
+          class="h-11 px-4 rounded-lg border text-sm font-medium flex items-center gap-2 transition-colors"
+          [ngClass]="showFiltres || nombreFiltresActifs > 0 ? 'border-brand-300 bg-brand-50 text-brand-700 dark:border-brand-500/40 dark:bg-brand-500/10 dark:text-brand-400' : 'border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-white/[0.03]'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          Filtres
+          @if (nombreFiltresActifs > 0) {
+            <span class="flex items-center justify-center w-5 h-5 rounded-full bg-brand-500 text-white text-[11px] font-semibold">{{ nombreFiltresActifs }}</span>
+          }
+        </button>
+
+        <div class="flex items-center gap-1.5">
+          <select [(ngModel)]="triChamp"
+            class="h-11 rounded-lg border border-gray-200 bg-white dark:bg-gray-900 px-3 pr-10 text-sm text-gray-700 dark:border-gray-800 dark:text-white/90 appearance-none bg-no-repeat bg-[right_0.75rem_center] cursor-pointer"
             style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 20 20%22 fill=%22none%22><path d=%22M5 7l5 5 5-5%22 stroke=%22%239ca3af%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')">
-          <option value="">Tous les statuts</option>
-          <option value="EN_STOCK">En stock</option>
-          <option value="VENDU">Vendu</option>
-          <option value="EN_MAINTENANCE">En maintenance</option>
-          <option value="HORS_SERVICE">Hors service</option>
-        </select>
-        <button *appHasPermission="['appareils', 'create']" (click)="ouvrirModal()" class="h-11 px-5 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors">
+            <option value="nom">Trier par nom</option>
+            <option value="numeroSerie">Trier par n° série</option>
+            <option value="dateImport">Trier par date</option>
+            <option value="statut">Trier par statut</option>
+          </select>
+
+          <button (click)="triOrdre = triOrdre === 'asc' ? 'desc' : 'asc'"
+            class="h-11 w-11 shrink-0 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-white/[0.03]" [title]="triOrdre === 'asc' ? 'Croissant' : 'Décroissant'">
+            @if (triOrdre === 'asc') {
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M5 12l5-8 5 8M5 17h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            } @else {
+              <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M5 8l5 8 5-8M5 3h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            }
+          </button>
+        </div>
+
+        <!-- Toggle vue grille / tableau -->
+        <div class="flex rounded-lg border border-gray-200 dark:border-gray-800 p-0.5">
+          <button (click)="changerVue('grille')"
+            class="h-9 px-3 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5"
+            [class.bg-brand-500]="vue === 'grille'" [class.text-white]="vue === 'grille'"
+            [class.text-gray-500]="vue !== 'grille'" [class.dark:text-gray-400]="vue !== 'grille'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+            </svg>
+            Cartes
+          </button>
+          <button (click)="changerVue('tableau')"
+            class="h-9 px-3 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5"
+            [class.bg-brand-500]="vue === 'tableau'" [class.text-white]="vue === 'tableau'"
+            [class.text-gray-500]="vue !== 'tableau'" [class.dark:text-gray-400]="vue !== 'tableau'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>
+              <line x1="9" y1="3" x2="9" y2="21"/>
+            </svg>
+            Tableau
+          </button>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button (click)="exporterCsv()"
+          class="h-11 px-4 flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-800 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors whitespace-nowrap">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 3v10m0 0l-4-4m4 4l4-4M3 17h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          CSV
+        </button>
+
+        <button *appHasPermission="['appareils', 'create']" (click)="ouvrirModal()" class="h-11 px-5 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors whitespace-nowrap">
           + Ajouter un appareil
         </button>
       </div>
     </div>
+
+    <!-- Panneau de filtres avancés -->
+    @if (showFiltres) {
+      <div class="pt-4 border-t border-gray-100 dark:border-gray-800 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2.5">Statut</p>
+          <div class="flex flex-wrap gap-2">
+            @for (s of ['EN_STOCK', 'VENDU', 'EN_MAINTENANCE', 'HORS_SERVICE']; track s) {
+              <button type="button" (click)="toggleFiltreStatut(s)"
+                class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
+                [ngClass]="statutsSelectionnes.includes(s) ? 'bg-brand-500 border-brand-500 text-white' : 'border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.05]'">
+                {{ statutLabel(s) }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2.5">Catégorie</p>
+          <div class="flex flex-wrap gap-2">
+            @for (c of categoriesDisponibles(); track c) {
+              <button type="button" (click)="toggleFiltreCategorie(c)"
+                class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
+                [ngClass]="categoriesSelectionnees.includes(c) ? 'bg-brand-500 border-brand-500 text-white' : 'border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.05]'">
+                {{ c }}
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (nombreFiltresActifs > 0) {
+          <div class="md:col-span-2">
+            <button (click)="reinitialiserFiltres()" class="text-sm font-medium text-brand-600 hover:underline dark:text-brand-400">
+              Réinitialiser les filtres
+            </button>
+          </div>
+        }
+      </div>
+    }
   </div>
 
-  <!-- Grille de cards appareils -->
+  <!-- Contenu : chargement / vide / grille / tableau -->
   @if (loading) {
-    <p class="text-gray-500 dark:text-gray-400">Chargement...</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+      @for (i of [1,2,3,4,5,6]; track i) {
+        <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] animate-pulse">
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-xl bg-gray-200 dark:bg-white/10"></div>
+            <div class="flex-1 space-y-2">
+              <div class="h-3.5 w-2/3 rounded bg-gray-200 dark:bg-white/10"></div>
+              <div class="h-3 w-1/3 rounded bg-gray-200 dark:bg-white/10"></div>
+            </div>
+          </div>
+          <div class="mt-4 h-8 rounded bg-gray-100 dark:bg-white/[0.05]"></div>
+        </div>
+      }
+    </div>
   } @else if (appareilsFiltres().length === 0) {
     <div class="rounded-2xl border border-gray-200 bg-white p-10 text-center dark:border-gray-800 dark:bg-white/[0.03]">
       <p class="text-gray-500 dark:text-gray-400">Aucun appareil ne correspond à ta recherche.</p>
+      @if (nombreFiltresActifs > 0 || searchTerm) {
+        <button (click)="reinitialiserFiltres()" class="mt-3 text-sm font-medium text-brand-600 hover:underline dark:text-brand-400">
+          Réinitialiser la recherche et les filtres
+        </button>
+      }
     </div>
-  } @else {
+  } @else if (vue === 'grille') {
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
       @for (a of appareilsPage; track a.id) {
         <div class="group rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border-l-4"
@@ -107,7 +309,7 @@
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M11 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
               Modifier
             </button>
-            <button (click)="supprimer(a)" *appHasPermission="['appareils', 'delete']"
+            <button (click)="demanderSuppression(a)" *appHasPermission="['appareils', 'delete']"
               class="flex-1 h-9 flex items-center justify-center gap-1.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10 transition-colors">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
               Supprimer
@@ -115,6 +317,70 @@
           </div>
         </div>
       }
+    </div>
+  } @else {
+    <!-- Vue tableau -->
+    <div class="rounded-2xl border border-gray-200 bg-white overflow-hidden dark:border-gray-800 dark:bg-white/[0.03]">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left">
+          <thead>
+            <tr class="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-white/[0.02]">
+              <th class="px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase cursor-pointer select-none" (click)="trierPar('nom')">
+                Appareil <span class="text-gray-300">{{ iconeTri('nom') }}</span>
+              </th>
+              <th class="px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase cursor-pointer select-none" (click)="trierPar('numeroSerie')">
+                N° série <span class="text-gray-300">{{ iconeTri('numeroSerie') }}</span>
+              </th>
+              <th class="px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Catégorie</th>
+              <th class="px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase cursor-pointer select-none" (click)="trierPar('dateImport')">
+                Date d'import <span class="text-gray-300">{{ iconeTri('dateImport') }}</span>
+              </th>
+              <th class="px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase cursor-pointer select-none" (click)="trierPar('statut')">
+                Statut <span class="text-gray-300">{{ iconeTri('statut') }}</span>
+              </th>
+              <th class="px-5 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (a of appareilsPage; track a.id) {
+              <tr class="border-b border-gray-50 dark:border-gray-800/50 hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+                <td class="px-5 py-3">
+                  <div class="flex items-center gap-2.5">
+                    <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-50 dark:bg-brand-500/15 shrink-0">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 6v6c0 4.5 3.5 8.7 8 10 4.5-1.3 8-5.5 8-10V6l-8-4z" stroke="#0d8f9e" stroke-width="1.6" stroke-linejoin="round"/></svg>
+                    </div>
+                    <span class="text-sm font-medium text-gray-800 dark:text-white/90">{{ a.nom }}</span>
+                  </div>
+                </td>
+                <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-300">{{ a.numeroSerie }}</td>
+                <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-300">{{ a.categorie }}</td>
+                <td class="px-5 py-3 text-sm text-gray-600 dark:text-gray-300">{{ a.dateImport }}</td>
+                <td class="px-5 py-3">
+                  <span class="px-2.5 py-1 rounded-full text-xs font-medium" [ngClass]="statutBadgeClass(a.statut)">
+                    {{ statutLabel(a.statut) }}
+                  </span>
+                </td>
+                <td class="px-5 py-3">
+                  <div class="flex items-center justify-end gap-1">
+                    <button (click)="voirQrCode(a)" class="h-8 w-8 flex items-center justify-center rounded-lg text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-500/10" title="QR Code">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3V3zm2 2v3h3V5H5zM3 14h7v7H3v-7zm2 2v3h3v-3H5zM14 3h7v7h-7V3zm2 2v3h3V5h-3zM14 14h3v3h-3v-3zm3 3h4v4h-4v-4zM14 21v-3h3v3h-3z" stroke="currentColor" stroke-width="1.2" fill="currentColor"/></svg>
+                    </button>
+                    <button (click)="voirTracabilite(a)" class="h-8 w-8 flex items-center justify-center rounded-lg text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/[0.03]" title="Traçabilité">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 3M21 12a9 9 0 11-9-9 9 9 0 019 9z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <button (click)="modifier(a)" *appHasPermission="['appareils', 'update']" class="h-8 w-8 flex items-center justify-center rounded-lg text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-500/10" title="Modifier">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M11 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-5M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <button (click)="demanderSuppression(a)" *appHasPermission="['appareils', 'delete']" class="h-8 w-8 flex items-center justify-center rounded-lg text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10" title="Supprimer">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
   }
 
@@ -183,6 +449,7 @@
               class="h-11 w-full rounded-lg border border-gray-200 bg-white dark:bg-gray-900 px-3 pr-10 text-sm text-gray-700 dark:border-gray-800 dark:text-white/90 appearance-none bg-no-repeat bg-[right_0.75rem_center] focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 transition-colors cursor-pointer"
               style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 20 20%22 fill=%22none%22><path d=%22M5 7l5 5 5-5%22 stroke=%22%239ca3af%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')">
               <option value="EN_STOCK">En stock</option>
+              <option value="VENDU">Vendu</option>
               <option value="EN_MAINTENANCE">En maintenance</option>
               <option value="HORS_SERVICE">Hors service</option>
             </select>
@@ -194,6 +461,23 @@
         <div class="mt-6 flex justify-end gap-3">
           <button (click)="fermerModal()" class="h-10 px-4 rounded-lg border border-gray-200 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">Annuler</button>
           <button (click)="enregistrer()" class="h-10 px-4 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium">Enregistrer</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal confirmation suppression -->
+  @if (showConfirmSuppression) {
+    <div class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4" (click)="annulerSuppression()">
+      <div class="w-full max-w-sm rounded-2xl bg-white p-6 dark:bg-gray-900" (click)="$event.stopPropagation()">
+        <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-50 dark:bg-red-500/15 mx-auto mb-4">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.3 3.9L2.7 17a2 2 0 001.7 3h15.2a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="#dc2626" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <h3 class="text-center text-lg font-semibold text-gray-800 dark:text-white/90">Supprimer cet appareil ?</h3>
+        <p class="mt-2 text-center text-sm text-gray-500 dark:text-gray-400">"{{ appareilASupprimer?.nom }}" sera définitivement supprimé.</p>
+        <div class="mt-6 flex justify-center gap-3">
+          <button (click)="annulerSuppression()" class="h-10 px-5 rounded-lg border border-gray-200 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">Annuler</button>
+          <button (click)="confirmerSuppression()" class="h-10 px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium">Supprimer</button>
         </div>
       </div>
     </div>

@@ -18,6 +18,10 @@ export class UtilisateursListComponent implements OnInit {
   filtreRole: string | null = null;
   triChamp: 'nom' | 'email' | 'role' = 'nom';
   triSens: 'asc' | 'desc' = 'asc';
+  showFiltres = false;
+
+  // Vue (cartes / tableau)
+  vueMode: 'cartes' | 'tableau' = 'cartes';
 
   // Pagination
   pageActuelle = 1;

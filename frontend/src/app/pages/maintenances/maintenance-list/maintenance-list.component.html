@@ -1,5 +1,6 @@
 <div class="space-y-6">
 
+  <!-- KPIs -->
   <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
     <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
       <p class="text-sm text-gray-500 dark:text-gray-400">Total</p>
@@ -19,42 +20,221 @@
     </div>
   </div>
 
-  <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+  <!-- Barre d'outils -->
+  <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] space-y-4">
     <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-      <select [(ngModel)]="filtreStatut"
-        class="h-11 w-full sm:w-56 rounded-lg border border-gray-200 bg-white dark:bg-gray-900 px-3 pr-10 text-sm text-gray-700 dark:border-gray-800 dark:text-white/90 appearance-none bg-no-repeat bg-[right_0.75rem_center] cursor-pointer"
-        style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 20 20%22 fill=%22none%22><path d=%22M5 7l5 5 5-5%22 stroke=%22%239ca3af%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')">
-        <option value="">Tous les statuts</option>
-        <option value="PLANIFIEE">Planifiée</option>
-        <option value="EN_COURS">En cours</option>
-        <option value="TERMINEE">Terminée</option>
-        <option value="ANNULEE">Annulée</option>
-      </select>
-      <div class="flex gap-3">
-        <button (click)="ouvrirHistoriqueGlobal()" class="h-11 px-5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors whitespace-nowrap">
-          📋 Historique global
+      <div class="flex items-center gap-3 flex-wrap">
+
+        <!-- Recherche -->
+        <div class="relative w-full sm:w-64">
+          <span class="absolute -translate-y-1/2 left-4 top-1/2">
+            <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+              <path d="M9 16A7 7 0 109 2a7 7 0 000 14zM18 18l-4-4" stroke="#9ca3af" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <input [(ngModel)]="searchTerm" type="text" placeholder="Appareil, technicien..."
+            class="h-11 w-full rounded-lg border border-gray-200 bg-transparent pl-11 pr-4 text-sm text-gray-800 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:text-white/90" />
+        </div>
+
+        <!-- Bouton Filtres -->
+        <button (click)="showFiltres = !showFiltres"
+          class="h-11 px-4 rounded-lg border text-sm font-medium flex items-center gap-2 transition-colors"
+          [ngClass]="showFiltres || filtresActifs
+            ? 'border-brand-300 bg-brand-50 text-brand-700 dark:border-brand-500/40 dark:bg-brand-500/10 dark:text-brand-400'
+            : 'border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-white/[0.03]'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M7 12h10M10 18h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          Filtres
+          @if (filtreStatut) {
+            <span class="flex items-center justify-center w-5 h-5 rounded-full bg-brand-500 text-white text-[11px] font-semibold">1</span>
+          }
         </button>
-        <button (click)="ouvrirModal()" class="h-11 px-5 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors whitespace-nowrap">
-          + Planifier une maintenance
+
+        <!-- Toggle cartes / tableau -->
+        <div class="flex rounded-lg border border-gray-200 dark:border-gray-800 p-0.5">
+          <button (click)="vueMode = 'cartes'"
+            class="h-9 px-3 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5"
+            [class.bg-brand-500]="vueMode === 'cartes'" [class.text-white]="vueMode === 'cartes'"
+            [class.text-gray-500]="vueMode !== 'cartes'" [class.dark:text-gray-400]="vueMode !== 'cartes'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+              <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+            </svg>
+            Cartes
+          </button>
+          <button (click)="vueMode = 'tableau'"
+            class="h-9 px-3 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5"
+            [class.bg-brand-500]="vueMode === 'tableau'" [class.text-white]="vueMode === 'tableau'"
+            [class.text-gray-500]="vueMode !== 'tableau'" [class.dark:text-gray-400]="vueMode !== 'tableau'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>
+              <line x1="9" y1="3" x2="9" y2="21"/>
+            </svg>
+            Tableau
+          </button>
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <button (click)="ouvrirHistoriqueGlobal()"
+          class="h-11 px-5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-colors whitespace-nowrap">
+          Historique global
+        </button>
+        <button (click)="ouvrirModal()"
+          class="h-11 px-5 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors whitespace-nowrap">
+          + Planifier
         </button>
       </div>
     </div>
+
+    <!-- Panneau de filtres avancés -->
+    @if (showFiltres) {
+      <div class="pt-4 border-t border-gray-100 dark:border-gray-800">
+        <p class="text-xs font-semibold uppercase tracking-wide text-gray-400 mb-2.5">Statut</p>
+        <div class="flex flex-wrap gap-2">
+          @for (s of ['PLANIFIEE', 'EN_COURS', 'TERMINEE', 'ANNULEE']; track s) {
+            <button type="button" (click)="filtreStatut = filtreStatut === s ? '' : s"
+              class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
+              [ngClass]="filtreStatut === s ? 'bg-brand-500 border-brand-500 text-white' : 'border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-white/[0.05]'">
+              {{ statutLabel(s) }}
+            </button>
+          }
+        </div>
+
+        @if (filtresActifs) {
+          <button (click)="reinitialiserFiltres()" class="mt-3 text-sm font-medium text-brand-600 hover:underline dark:text-brand-400">
+            Réinitialiser les filtres
+          </button>
+        }
+      </div>
+    }
   </div>
 
+  <!-- Contenu principal -->
   @if (loading) {
     <p class="text-gray-500 dark:text-gray-400">Chargement...</p>
   } @else if (maintenancesFiltrees().length === 0) {
     <div class="rounded-2xl border border-gray-200 bg-white p-10 text-center dark:border-gray-800 dark:bg-white/[0.03]">
       <p class="text-gray-500 dark:text-gray-400">Aucune maintenance ne correspond.</p>
+      @if (filtresActifs) {
+        <button (click)="reinitialiserFiltres()" class="mt-3 text-sm font-medium text-brand-600 hover:underline dark:text-brand-400">
+          Réinitialiser la recherche et les filtres
+        </button>
+      }
     </div>
+  } @else if (vueMode === 'tableau') {
+
+    <!-- Vue tableau avec tri -->
+    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 dark:bg-gray-800/50">
+            <tr>
+              <th (click)="changerTri('appareil')"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 cursor-pointer hover:text-brand-600 select-none">
+                Appareil
+                @if (triColonne === 'appareil') {
+                  <span class="ml-1">{{ triSens === 'asc' ? '↑' : '↓' }}</span>
+                }
+              </th>
+              <th (click)="changerTri('type')"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 cursor-pointer hover:text-brand-600 select-none">
+                Type
+                @if (triColonne === 'type') {
+                  <span class="ml-1">{{ triSens === 'asc' ? '↑' : '↓' }}</span>
+                }
+              </th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">Technicien</th>
+              <th (click)="changerTri('datePrevue')"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 cursor-pointer hover:text-brand-600 select-none">
+                Date prévue
+                @if (triColonne === 'datePrevue') {
+                  <span class="ml-1">{{ triSens === 'asc' ? '↑' : '↓' }}</span>
+                }
+              </th>
+              <th (click)="changerTri('statut')"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 cursor-pointer hover:text-brand-600 select-none">
+                Statut
+                @if (triColonne === 'statut') {
+                  <span class="ml-1">{{ triSens === 'asc' ? '↑' : '↓' }}</span>
+                }
+              </th>
+              <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-400">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+            @for (m of maintenancesTrieesPage; track m.id) {
+              <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors"
+                  [class.bg-red-50]="estEnRetard(m)"
+                  [class.dark:bg-red-500\/5]="estEnRetard(m)">
+                <td class="px-4 py-3 font-medium text-gray-800 dark:text-white/90">
+                  {{ m.appareil?.nom || '—' }}
+                </td>
+                <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ typeLabel(m.type) }}</td>
+                <td class="px-4 py-3 text-gray-600 dark:text-gray-400">
+                  {{ m.technicien ? m.technicien.nom + ' ' + m.technicien.prenom : '—' }}
+                </td>
+                <td class="px-4 py-3 text-gray-600 dark:text-gray-400">
+                  {{ m.datePrevue }}
+                  @if (estEnRetard(m)) {
+                    <span class="ml-1 text-red-600 dark:text-red-400 text-xs font-medium">En retard</span>
+                  } @else if (estUrgente(m)) {
+                    <span class="ml-1 text-amber-600 dark:text-amber-400 text-xs font-medium">{{ joursRestants(m) }}j</span>
+                  }
+                </td>
+                <td class="px-4 py-3">
+                  <span class="px-2 py-0.5 rounded-full text-xs font-medium" [ngClass]="statutBadgeClass(m.statut)">
+                    {{ statutLabel(m.statut) }}
+                  </span>
+                </td>
+                <td class="px-4 py-3">
+                  <div class="flex items-center justify-end gap-1">
+                    @if (m.statut === 'PLANIFIEE' || m.statut === 'EN_COURS') {
+                      <button (click)="marquerTerminee(m)"
+                        class="h-8 w-8 flex items-center justify-center rounded-lg text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-500/10 transition-colors"
+                        title="Marquer terminée">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                          <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                    }
+                    <button (click)="voirHistorique(m.appareil)"
+                      class="h-8 w-8 flex items-center justify-center rounded-lg text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-500/10 transition-colors"
+                      title="Historique">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 8v4l3 3M21 12a9 9 0 11-9-9 9 9 0 019 9z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                    <button (click)="demanderSuppression(m)"
+                      class="h-8 w-8 flex items-center justify-center rounded-lg text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10 transition-colors"
+                      title="Supprimer">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   } @else {
+
+    <!-- Vue cartes -->
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
       @for (m of maintenancesPage; track m.id) {
         <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border-l-4"
-             [ngClass]="estEnRetard(m) ? 'border-l-red-500' : estUrgente(m) ? 'border-l-amber-400' : 'border-l-gray-200 dark:border-l-gray-700'">
+             [class.border-l-red-500]="estEnRetard(m)"
+             [class.border-l-amber-400]="!estEnRetard(m) && estUrgente(m)"
+             [class.border-l-gray-200]="!estEnRetard(m) && !estUrgente(m)"
+             [class.dark:border-l-gray-700]="!estEnRetard(m) && !estUrgente(m)">
           <div class="flex items-start justify-between">
             <div>
-              <h4 class="text-base font-semibold text-gray-800 dark:text-white/90">{{ m.appareil?.nom || 'Appareil inconnu' }}</h4>
+              <h4 class="text-base font-semibold text-gray-800 dark:text-white/90">
+                {{ m.appareil?.nom || 'Appareil inconnu' }}
+              </h4>
               <p class="mt-0.5 text-sm text-gray-500 dark:text-gray-400">{{ typeLabel(m.type) }}</p>
             </div>
             <span class="px-2.5 py-1 rounded-full text-xs font-medium" [ngClass]="statutBadgeClass(m.statut)">
@@ -64,7 +244,9 @@
 
           @if (m.technicien) {
             <p class="mt-2 text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 12a5 5 0 100-10 5 5 0 000 10zM4 22a8 8 0 0116 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                <path d="M12 12a5 5 0 100-10 5 5 0 000 10zM4 22a8 8 0 0116 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
               {{ m.technicien.nom }} {{ m.technicien.prenom }}
             </p>
           }
@@ -72,9 +254,9 @@
           <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
             Prévue le {{ m.datePrevue }}
             @if (estEnRetard(m)) {
-              <span class="ml-2 text-red-600 dark:text-red-400 font-medium">⚠ En retard</span>
+              <span class="ml-2 text-red-600 dark:text-red-400 font-medium text-xs">En retard</span>
             } @else if (estUrgente(m)) {
-              <span class="ml-2 text-amber-600 dark:text-amber-400 font-medium">⏰ Dans {{ joursRestants(m) }} j</span>
+              <span class="ml-2 text-amber-600 dark:text-amber-400 font-medium text-xs">Dans {{ joursRestants(m) }} j</span>
             }
           </div>
 
@@ -82,18 +264,24 @@
             @if (m.statut === 'PLANIFIEE' || m.statut === 'EN_COURS') {
               <button (click)="marquerTerminee(m)"
                 class="h-9 flex-1 flex items-center justify-center gap-1.5 rounded-lg text-sm font-medium text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-500/10 transition-colors">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                  <path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
                 Terminer
               </button>
             }
             <button (click)="voirHistorique(m.appareil)"
               class="h-9 flex-1 flex items-center justify-center gap-1.5 rounded-lg text-sm font-medium text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-500/10 transition-colors">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 3M21 12a9 9 0 11-9-9 9 9 0 019 9z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                <path d="M12 8v4l3 3M21 12a9 9 0 11-9-9 9 9 0 019 9z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
               Historique
             </button>
             <button (click)="demanderSuppression(m)"
               class="h-9 w-9 flex items-center justify-center rounded-lg text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10 transition-colors">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+                <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
             </button>
           </div>
         </div>
@@ -101,25 +289,42 @@
     </div>
   }
 
+  <!-- Pagination (commune aux deux vues) -->
   @if (!loading && maintenancesFiltrees().length > 0) {
     <div class="flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-5 py-3 dark:border-gray-800 dark:bg-white/[0.03]">
-      <p class="text-sm text-gray-500 dark:text-gray-400">Page {{ page }} sur {{ totalPages }} — {{ maintenancesFiltrees().length }} résultat(s)</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400">
+        Page {{ page }} sur {{ totalPages }} — {{ maintenancesFiltrees().length }} résultat(s)
+      </p>
       <div class="flex items-center gap-1">
-        <button (click)="allerPage(page - 1)" [disabled]="page === 1" class="h-9 w-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-white/[0.03]">
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M12 15l-5-5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <button (click)="allerPage(page - 1)" [disabled]="page === 1"
+          class="h-9 w-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-white/[0.03]">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+            <path d="M12 15l-5-5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </button>
         @for (p of pagesArray(); track p) {
-          <button (click)="allerPage(p)" class="h-9 w-9 flex items-center justify-center rounded-lg text-sm font-medium transition-colors" [ngClass]="p === page ? 'bg-brand-500 text-white' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/[0.03]'">
+          <button (click)="allerPage(p)"
+            class="h-9 w-9 flex items-center justify-center rounded-lg text-sm font-medium transition-colors"
+            [class.bg-brand-500]="p === page"
+            [class.text-white]="p === page"
+            [class.text-gray-600]="p !== page"
+            [class.hover:bg-gray-50]="p !== page"
+            [class.dark:text-gray-300]="p !== page"
+            [class.dark:hover:bg-white\/\[0\.03\]]="p !== page">
             {{ p }}
           </button>
         }
-        <button (click)="allerPage(page + 1)" [disabled]="page === totalPages" class="h-9 w-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-white/[0.03]">
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M8 5l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <button (click)="allerPage(page + 1)" [disabled]="page === totalPages"
+          class="h-9 w-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-white/[0.03]">
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+            <path d="M8 5l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </button>
       </div>
     </div>
   }
 
+  <!-- Modal planifier -->
   @if (showModal) {
     <div class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4" (click)="fermerModal()">
       <div class="w-full max-w-md rounded-2xl bg-white p-6 dark:bg-gray-900" (click)="$event.stopPropagation()">
@@ -131,7 +336,9 @@
               class="mt-1 h-11 w-full rounded-lg border border-gray-200 bg-white dark:bg-gray-900 px-3 pr-10 text-sm text-gray-700 dark:border-gray-800 dark:text-white/90 appearance-none bg-no-repeat bg-[right_0.75rem_center] cursor-pointer"
               style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 20 20%22 fill=%22none%22><path d=%22M5 7l5 5 5-5%22 stroke=%22%239ca3af%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')">
               <option [ngValue]="null">-- Sélectionner --</option>
-              @for (a of appareils; track a.id) { <option [ngValue]="a.id">{{ a.nom }} ({{ a.numeroSerie }})</option> }
+              @for (a of appareils; track a.id) {
+                <option [ngValue]="a.id">{{ a.nom }} ({{ a.numeroSerie }})</option>
+              }
             </select>
           </div>
           <div>
@@ -140,10 +347,12 @@
               class="mt-1 h-11 w-full rounded-lg border border-gray-200 bg-white dark:bg-gray-900 px-3 pr-10 text-sm text-gray-700 dark:border-gray-800 dark:text-white/90 appearance-none bg-no-repeat bg-[right_0.75rem_center] cursor-pointer"
               style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 20 20%22 fill=%22none%22><path d=%22M5 7l5 5 5-5%22 stroke=%22%239ca3af%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')">
               <option [ngValue]="null">-- Non assigné --</option>
-              @for (t of techniciens; track t.id) { <option [ngValue]="t.id">{{ t.nom }} {{ t.prenom }}</option> }
+              @for (t of techniciens; track t.id) {
+                <option [ngValue]="t.id">{{ t.nom }} {{ t.prenom }}</option>
+              }
             </select>
             @if (techniciens.length === 0) {
-              <p class="mt-1 text-xs text-amber-600 dark:text-amber-400">Aucun utilisateur avec le rôle TECHNICIEN pour l'instant.</p>
+              <p class="mt-1 text-xs text-amber-600 dark:text-amber-400">Aucun technicien disponible.</p>
             }
           </div>
           <div>
@@ -162,19 +371,30 @@
               class="mt-1 h-11 w-full rounded-lg border border-gray-200 bg-transparent px-3 text-sm dark:border-gray-800 dark:text-white/90" />
           </div>
         </div>
-        @if (formErreur) { <p class="mt-3 text-sm text-red-600 dark:text-red-400">{{ formErreur }}</p> }
+        @if (formErreur) {
+          <p class="mt-3 text-sm text-red-600 dark:text-red-400">{{ formErreur }}</p>
+        }
         <div class="mt-6 flex justify-end gap-3">
-          <button (click)="fermerModal()" class="h-10 px-4 rounded-lg border border-gray-200 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">Annuler</button>
-          <button (click)="enregistrer()" class="h-10 px-4 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium">Enregistrer</button>
+          <button (click)="fermerModal()"
+            class="h-10 px-4 rounded-lg border border-gray-200 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">
+            Annuler
+          </button>
+          <button (click)="enregistrer()"
+            class="h-10 px-4 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium">
+            Enregistrer
+          </button>
         </div>
       </div>
     </div>
   }
 
+  <!-- Modal historique appareil -->
   @if (showHistorique && appareilHistorique) {
     <div class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4" (click)="fermerHistorique()">
       <div class="w-full max-w-md rounded-2xl bg-white p-6 dark:bg-gray-900" (click)="$event.stopPropagation()">
-        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-1">Historique — {{ appareilHistorique.nom }}</h3>
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-1">
+          Historique — {{ appareilHistorique.nom }}
+        </h3>
         <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">{{ appareilHistorique.numeroSerie }}</p>
         <div class="space-y-2 max-h-72 overflow-y-auto">
           @for (h of historiqueAppareil(appareilHistorique.id); track h.id) {
@@ -184,7 +404,9 @@
                 <span class="text-xs text-gray-400">{{ h.dateRealisee }}</span>
               </div>
               @if (h.technicien) {
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Par {{ h.technicien.nom }} {{ h.technicien.prenom }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  Par {{ h.technicien.nom }} {{ h.technicien.prenom }}
+                </p>
               }
             </div>
           } @empty {
@@ -192,12 +414,16 @@
           }
         </div>
         <div class="mt-6 flex justify-end">
-          <button (click)="fermerHistorique()" class="h-10 px-4 rounded-lg border border-gray-200 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">Fermer</button>
+          <button (click)="fermerHistorique()"
+            class="h-10 px-4 rounded-lg border border-gray-200 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">
+            Fermer
+          </button>
         </div>
       </div>
     </div>
   }
 
+  <!-- Modal historique global -->
   @if (showHistoriqueGlobal) {
     <div class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4" (click)="fermerHistoriqueGlobal()">
       <div class="w-full max-w-2xl rounded-2xl bg-white p-6 dark:bg-gray-900 max-h-[80vh] overflow-y-auto" (click)="$event.stopPropagation()">
@@ -206,10 +432,14 @@
           @for (h of toutesInterventionsTerminees(); track h.id) {
             <div class="flex items-center justify-between rounded-lg bg-gray-50 dark:bg-white/[0.03] px-4 py-3">
               <div>
-                <p class="text-sm font-medium text-gray-800 dark:text-white/90">{{ h.appareil?.nom }} — {{ typeLabel(h.type) }}</p>
+                <p class="text-sm font-medium text-gray-800 dark:text-white/90">
+                  {{ h.appareil?.nom }} — {{ typeLabel(h.type) }}
+                </p>
                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                   {{ h.appareil?.numeroSerie }}
-                  @if (h.technicien) { · Par {{ h.technicien.nom }} {{ h.technicien.prenom }} }
+                  @if (h.technicien) {
+                    · Par {{ h.technicien.nom }} {{ h.technicien.prenom }}
+                  }
                 </p>
               </div>
               <span class="text-xs text-gray-400 whitespace-nowrap">{{ h.dateRealisee }}</span>
@@ -219,24 +449,40 @@
           }
         </div>
         <div class="mt-6 flex justify-end">
-          <button (click)="fermerHistoriqueGlobal()" class="h-10 px-4 rounded-lg border border-gray-200 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">Fermer</button>
+          <button (click)="fermerHistoriqueGlobal()"
+            class="h-10 px-4 rounded-lg border border-gray-200 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">
+            Fermer
+          </button>
         </div>
       </div>
     </div>
   }
 
+  <!-- Modal confirmation suppression -->
   @if (showConfirmSuppression) {
     <div class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4" (click)="annulerSuppression()">
       <div class="w-full max-w-sm rounded-2xl bg-white p-6 dark:bg-gray-900" (click)="$event.stopPropagation()">
         <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-50 dark:bg-red-500/15 mx-auto mb-4">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.3 3.9L2.7 17a2 2 0 001.7 3h15.2a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="#dc2626" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M12 9v4m0 4h.01M10.3 3.9L2.7 17a2 2 0 001.7 3h15.2a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"
+              stroke="#dc2626" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
-        <h3 class="text-center text-lg font-semibold text-gray-800 dark:text-white/90">Supprimer cette maintenance ?</h3>
+        <h3 class="text-center text-lg font-semibold text-gray-800 dark:text-white/90">
+          Supprimer cette maintenance ?
+        </h3>
         <div class="mt-6 flex justify-center gap-3">
-          <button (click)="annulerSuppression()" class="h-10 px-5 rounded-lg border border-gray-200 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">Annuler</button>
-          <button (click)="confirmerSuppression()" class="h-10 px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium">Supprimer</button>
+          <button (click)="annulerSuppression()"
+            class="h-10 px-5 rounded-lg border border-gray-200 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">
+            Annuler
+          </button>
+          <button (click)="confirmerSuppression()"
+            class="h-10 px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium">
+            Supprimer
+          </button>
         </div>
       </div>
     </div>
   }
+
 </div>

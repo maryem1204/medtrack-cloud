@@ -1,91 +1,393 @@
-<div class="space-y-6">
+<div class="space-y-5">
 
-  <!-- Stats -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-      <p class="text-sm text-gray-500 dark:text-gray-400">Total commandes</p>
+  <!-- Suggestions intelligentes -->
+  @if (showSuggestions && suggestions().length > 0) {
+    <div class="space-y-2">
+      @for (s of suggestions(); track s.message) {
+        <div class="flex items-center gap-3 rounded-xl px-4 py-3 border"
+          [class.bg-amber-50]="s.couleur === 'amber'" [class.border-amber-200]="s.couleur === 'amber'" [class.dark:bg-amber-500\/10]="s.couleur === 'amber'" [class.dark:border-amber-500\/20]="s.couleur === 'amber'"
+          [class.bg-red-50]="s.couleur === 'red'" [class.border-red-200]="s.couleur === 'red'" [class.dark:bg-red-500\/10]="s.couleur === 'red'" [class.dark:border-red-500\/20]="s.couleur === 'red'"
+          [class.bg-blue-50]="s.couleur === 'blue'" [class.border-blue-200]="s.couleur === 'blue'" [class.dark:bg-blue-500\/10]="s.couleur === 'blue'" [class.dark:border-blue-500\/20]="s.couleur === 'blue'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+            [class.text-amber-500]="s.couleur === 'amber'"
+            [class.text-red-500]="s.couleur === 'red'"
+            [class.text-blue-500]="s.couleur === 'blue'"
+            class="shrink-0" stroke="currentColor" stroke-width="1.8">
+            <path d="M12 9v4m0 4h.01M10.3 3.9L2.7 17a2 2 0 001.7 3h15.2a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <p class="text-sm flex-1"
+            [class.text-amber-700]="s.couleur === 'amber'" [class.dark:text-amber-300]="s.couleur === 'amber'"
+            [class.text-red-700]="s.couleur === 'red'" [class.dark:text-red-300]="s.couleur === 'red'"
+            [class.text-blue-700]="s.couleur === 'blue'" [class.dark:text-blue-300]="s.couleur === 'blue'">
+            {{ s.message }}
+          </p>
+          <button (click)="showSuggestions = false" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 shrink-0">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- KPIs -->
+  <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+    <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+      <p class="text-xs text-gray-500 dark:text-gray-400">Total</p>
       <p class="mt-1 text-2xl font-bold text-gray-800 dark:text-white/90">{{ commandes.length }}</p>
+      <p class="mt-1 text-xs text-gray-400">{{ totalGlobal() | number:'1.0-0' }} DT de volume</p>
     </div>
-    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-      <p class="text-sm text-gray-500 dark:text-gray-400">En attente</p>
-      <p class="mt-1 text-2xl font-bold text-amber-600 dark:text-amber-400">{{ countByStatut('EN_ATTENTE') }}</p>
+    <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/20 dark:bg-amber-500/10 cursor-pointer"
+         (click)="filtreStatut = filtreStatut === 'EN_ATTENTE' ? '' : 'EN_ATTENTE'">
+      <p class="text-xs text-amber-600 dark:text-amber-400">En attente</p>
+      <p class="mt-1 text-2xl font-bold text-amber-700 dark:text-amber-300">{{ countByStatut('EN_ATTENTE') }}</p>
+      <p class="mt-1 text-xs text-amber-500">Cliquer pour filtrer</p>
     </div>
-    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-      <p class="text-sm text-gray-500 dark:text-gray-400">Validées</p>
-      <p class="mt-1 text-2xl font-bold text-brand-600 dark:text-brand-400">{{ countByStatut('VALIDEE') }}</p>
+    <div class="rounded-2xl border border-brand-200 bg-brand-50 p-4 dark:border-brand-500/20 dark:bg-brand-500/10 cursor-pointer"
+         (click)="filtreStatut = filtreStatut === 'VALIDEE' ? '' : 'VALIDEE'">
+      <p class="text-xs text-brand-600 dark:text-brand-400">Validées</p>
+      <p class="mt-1 text-2xl font-bold text-brand-700 dark:text-brand-300">{{ countByStatut('VALIDEE') }}</p>
+      <p class="mt-1 text-xs text-brand-500">Cliquer pour filtrer</p>
     </div>
-    <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-      <p class="text-sm text-gray-500 dark:text-gray-400">Reçues</p>
-      <p class="mt-1 text-2xl font-bold text-green-600 dark:text-green-400">{{ countByStatut('RECUE') }}</p>
+    <div class="rounded-2xl border border-green-200 bg-green-50 p-4 dark:border-green-500/20 dark:bg-green-500/10 cursor-pointer"
+         (click)="filtreStatut = filtreStatut === 'RECUE' ? '' : 'RECUE'">
+      <p class="text-xs text-green-600 dark:text-green-400">Reçues</p>
+      <p class="mt-1 text-2xl font-bold text-green-700 dark:text-green-300">{{ countByStatut('RECUE') }}</p>
+      <p class="mt-1 text-xs text-green-500">Cliquer pour filtrer</p>
     </div>
   </div>
 
   <!-- Toolbar -->
-  <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-    <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-      <div class="relative w-full sm:w-80">
-        <span class="absolute -translate-y-1/2 left-4 top-1/2">
-          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M9 16A7 7 0 109 2a7 7 0 000 14zM18 18l-4-4" stroke="#9ca3af" stroke-width="1.6" stroke-linecap="round"/></svg>
-        </span>
-        <input [(ngModel)]="searchTerm" type="text" placeholder="Rechercher (référence, fournisseur)..."
-          class="h-11 w-full rounded-lg border border-gray-200 bg-transparent pl-11 pr-4 text-sm text-gray-800 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:text-white/90" />
+  <div class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
+    <div class="flex flex-col gap-3">
+      <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+
+        <!-- Recherche -->
+        <div class="relative flex-1 max-w-sm">
+          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+              <path d="M9 16A7 7 0 109 2a7 7 0 000 14zM18 18l-4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <input [(ngModel)]="searchTerm" type="text" placeholder="Référence, fournisseur..."
+            class="h-10 w-full rounded-lg border border-gray-200 bg-transparent pl-9 pr-4 text-sm text-gray-800 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-500/10 dark:border-gray-700 dark:text-white/90" />
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <!-- Bouton Filtres (repliable) -->
+          <button (click)="showFiltres = !showFiltres"
+            class="h-10 px-3 rounded-lg border text-sm font-medium flex items-center gap-1.5 transition-colors"
+            [ngClass]="showFiltres || filtresActifs
+              ? 'border-brand-300 bg-brand-50 text-brand-700 dark:border-brand-500/40 dark:bg-brand-500/10 dark:text-brand-400'
+              : 'border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.03]'">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M4 6h16M7 12h10M10 18h4" stroke-linecap="round"/>
+            </svg>
+            Filtres
+            @if ((filtreStatut ? 1 : 0) + (filtreFournisseur ? 1 : 0) > 0) {
+              <span class="flex items-center justify-center w-5 h-5 rounded-full bg-brand-500 text-white text-[10px] font-semibold">
+                {{ (filtreStatut ? 1 : 0) + (filtreFournisseur ? 1 : 0) }}
+              </span>
+            }
+          </button>
+
+          <!-- Toggle vue -->
+          <div class="flex rounded-lg border border-gray-200 dark:border-gray-700 p-0.5">
+            <button (click)="vueMode = 'cartes'"
+              class="h-8 px-3 rounded-md text-xs font-medium transition-colors flex items-center gap-1"
+              [class.bg-brand-500]="vueMode === 'cartes'" [class.text-white]="vueMode === 'cartes'"
+              [class.text-gray-500]="vueMode !== 'cartes'">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+              </svg>
+              Cartes
+            </button>
+            <button (click)="vueMode = 'tableau'"
+              class="h-8 px-3 rounded-md text-xs font-medium transition-colors flex items-center gap-1"
+              [class.bg-brand-500]="vueMode === 'tableau'" [class.text-white]="vueMode === 'tableau'"
+              [class.text-gray-500]="vueMode !== 'tableau'">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/>
+              </svg>
+              Tableau
+            </button>
+          </div>
+
+          <!-- Export CSV -->
+          <button (click)="exporterCSV()"
+            class="h-10 px-3 rounded-lg border border-gray-200 dark:border-gray-700 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/[0.03] flex items-center gap-1.5 transition-colors">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            CSV
+          </button>
+
+          <!-- Nouvelle commande -->
+          <button *appHasPermission="['commandes', 'create']" (click)="ouvrirModal()"
+            class="h-10 px-4 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors whitespace-nowrap">
+            + Nouvelle commande
+          </button>
+        </div>
       </div>
-      <div class="flex gap-3">
-        <select [(ngModel)]="filtreStatut"
-          class="h-11 rounded-lg border border-gray-200 bg-white dark:bg-gray-900 px-3 pr-10 text-sm text-gray-700 dark:border-gray-800 dark:text-white/90 appearance-none bg-no-repeat bg-[right_0.75rem_center] cursor-pointer"
-          style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 20 20%22 fill=%22none%22><path d=%22M5 7l5 5 5-5%22 stroke=%22%239ca3af%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')">
-          <option value="">Tous les statuts</option>
-          <option value="EN_ATTENTE">En attente</option>
-          <option value="VALIDEE">Validée</option>
-          <option value="RECUE">Reçue</option>
-          <option value="ANNULEE">Annulée</option>
-        </select>
-        <button *appHasPermission="['commandes', 'create']" (click)="ouvrirModal()" class="h-11 px-5 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium transition-colors whitespace-nowrap">
-          + Nouvelle commande
-        </button>
-      </div>
+
+      <!-- Panneau de filtres avancés -->
+      @if (showFiltres) {
+        <div class="pt-3 border-t border-gray-100 dark:border-gray-800 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">Statut</label>
+            <select [(ngModel)]="filtreStatut"
+              class="h-10 w-full rounded-lg border border-gray-200 bg-white dark:bg-gray-900 px-3 pr-8 text-sm text-gray-700 dark:border-gray-700 dark:text-white/90 appearance-none cursor-pointer"
+              style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22none%22><path d=%22M5 7l5 5 5-5%22 stroke=%22%239ca3af%22 stroke-width=%221.6%22 stroke-linecap=%22round%22/></svg>'); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 16px;">
+              <option value="">Tous les statuts</option>
+              <option value="EN_ATTENTE">En attente</option>
+              <option value="VALIDEE">Validée</option>
+              <option value="RECUE">Reçue</option>
+              <option value="ANNULEE">Annulée</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">Fournisseur</label>
+            <select [(ngModel)]="filtreFournisseur"
+              class="h-10 w-full rounded-lg border border-gray-200 bg-white dark:bg-gray-900 px-3 pr-8 text-sm text-gray-700 dark:border-gray-700 dark:text-white/90 appearance-none cursor-pointer"
+              style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22none%22><path d=%22M5 7l5 5 5-5%22 stroke=%22%239ca3af%22 stroke-width=%221.6%22 stroke-linecap=%22round%22/></svg>'); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 16px;">
+              <option value="">Tous les fournisseurs</option>
+              @for (f of fournisseurs; track f.id) {
+                <option [value]="f.id">{{ f.nom }}</option>
+              }
+            </select>
+          </div>
+
+          @if (filtresActifs) {
+            <div class="sm:col-span-2">
+              <button (click)="reinitialiserFiltres()"
+                class="text-xs font-medium text-brand-600 hover:underline dark:text-brand-400">
+                Réinitialiser les filtres
+              </button>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Résumé filtre actif -->
+      @if (filtresActifs) {
+        <p class="text-xs text-gray-400">
+          {{ commandesFiltrees().length }} résultat(s) sur {{ commandes.length }} commandes
+        </p>
+      }
     </div>
   </div>
 
-  <!-- Liste -->
+  <!-- Contenu principal -->
   @if (loading) {
-    <p class="text-gray-500 dark:text-gray-400">Chargement...</p>
-  } @else if (commandesFiltrees().length === 0) {
-    <div class="rounded-2xl border border-gray-200 bg-white p-10 text-center dark:border-gray-800 dark:bg-white/[0.03]">
-      <p class="text-gray-500 dark:text-gray-400">Aucune commande ne correspond.</p>
+    <div class="flex items-center justify-center py-16">
+      <div class="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
     </div>
+  } @else if (commandesFiltrees().length === 0) {
+    <div class="rounded-2xl border border-gray-200 bg-white p-12 text-center dark:border-gray-800 dark:bg-white/[0.03]">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" class="mx-auto mb-3 text-gray-300 dark:text-gray-600" stroke="currentColor" stroke-width="1.5">
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <p class="text-sm text-gray-500 dark:text-gray-400">Aucune commande ne correspond à votre recherche.</p>
+      @if (filtresActifs) {
+        <button (click)="reinitialiserFiltres()" class="mt-3 text-xs text-brand-500 hover:underline">Réinitialiser les filtres</button>
+      }
+    </div>
+
+  } @else if (vueMode === 'tableau') {
+
+    <!-- Vue tableau -->
+    <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-800">
+            <tr>
+              <th (click)="changerTri('reference')"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 cursor-pointer hover:text-brand-600 select-none whitespace-nowrap">
+                Référence {{ triIcon('reference') }}
+              </th>
+              <th (click)="changerTri('fournisseur')"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 cursor-pointer hover:text-brand-600 select-none">
+                Fournisseur {{ triIcon('fournisseur') }}
+              </th>
+              <th (click)="changerTri('dateCommande')"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 cursor-pointer hover:text-brand-600 select-none whitespace-nowrap">
+                Date {{ triIcon('dateCommande') }}
+              </th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">Lignes</th>
+              <th (click)="changerTri('total')"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 cursor-pointer hover:text-brand-600 select-none">
+                Total {{ triIcon('total') }}
+              </th>
+              <th (click)="changerTri('statut')"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 cursor-pointer hover:text-brand-600 select-none">
+                Statut {{ triIcon('statut') }}
+              </th>
+              <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 dark:text-gray-400">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-50 dark:divide-gray-800/50">
+            @for (c of commandesPage; track c.id) {
+              <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02] transition-colors">
+                <td class="px-4 py-3 font-mono text-xs font-semibold text-gray-800 dark:text-white/90">{{ c.reference }}</td>
+                <td class="px-4 py-3 text-gray-600 dark:text-gray-400">{{ c.fournisseur?.nom || '—' }}</td>
+                <td class="px-4 py-3 text-gray-500 dark:text-gray-400 text-xs whitespace-nowrap">{{ c.dateCommande }}</td>
+                <td class="px-4 py-3 text-gray-500 dark:text-gray-400 text-xs">
+                  <button (click)="voirDetail(c)" class="hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                    {{ (c.lignes || []).length }} ligne(s)
+                  </button>
+                </td>
+                <td class="px-4 py-3 font-semibold text-gray-800 dark:text-white/90 text-xs whitespace-nowrap">
+                  {{ totalLignes(c) | number:'1.0-2' }} DT
+                </td>
+                <td class="px-4 py-3">
+                  <span class="px-2 py-0.5 rounded-full text-xs font-medium" [ngClass]="statutBadgeClass(c.statut)">
+                    {{ statutLabel(c.statut) }}
+                  </span>
+                </td>
+                <td class="px-4 py-3">
+                  <div class="flex items-center justify-end gap-1">
+                    @if (c.statut === 'EN_ATTENTE') {
+                      <button (click)="valider(c)" title="Valider"
+                        class="h-7 px-2 rounded-md text-xs font-medium text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-500/10 transition-colors">
+                        Valider
+                      </button>
+                    }
+                    @if (c.statut === 'VALIDEE') {
+                      <button (click)="recevoir(c)" title="Recevoir"
+                        class="h-7 px-2 rounded-md text-xs font-medium text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-500/10 transition-colors">
+                        Recevoir
+                      </button>
+                    }
+                    @if (c.statut === 'EN_ATTENTE' || c.statut === 'VALIDEE') {
+                      <button (click)="annuler(c)" title="Annuler"
+                        class="h-7 px-2 rounded-md text-xs font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10 transition-colors">
+                        Annuler
+                      </button>
+                    }
+                    <button (click)="demanderSuppression(c)"
+                      class="h-7 w-7 flex items-center justify-center rounded-md text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   } @else {
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+
+    <!-- Vue cartes -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
       @for (c of commandesPage; track c.id) {
-        <div class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
-          <div class="flex items-start justify-between">
-            <div>
-              <h4 class="text-base font-semibold text-gray-800 dark:text-white/90">{{ c.reference }}</h4>
-              <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ c.fournisseur?.nom || 'Fournisseur inconnu' }}</p>
+        <div class="group rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
+
+          <!-- Header carte -->
+          <div class="p-4 pb-3">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <p class="font-mono text-xs text-gray-400 dark:text-gray-500">{{ c.dateCommande }}</p>
+                <h4 class="text-sm font-bold text-gray-800 dark:text-white/90 mt-0.5">{{ c.reference }}</h4>
+                <p class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{{ c.fournisseur?.nom || 'Fournisseur inconnu' }}</p>
+              </div>
+              <span class="shrink-0 px-2.5 py-1 rounded-full text-xs font-medium" [ngClass]="statutBadgeClass(c.statut)">
+                {{ statutLabel(c.statut) }}
+              </span>
             </div>
-            <span class="px-2.5 py-1 rounded-full text-xs font-medium" [ngClass]="statutBadgeClass(c.statut)">
-              {{ statutLabel(c.statut) }}
-            </span>
+
+            <!-- Timeline statut -->
+            @if (c.statut !== 'ANNULEE') {
+              <div class="mt-3 flex items-center gap-0">
+                @for (etape of etapesStatut; track etape; let i = $index) {
+                  <div class="flex items-center" [class.flex-1]="i < etapesStatut.length - 1">
+                    <div class="w-5 h-5 rounded-full flex items-center justify-center text-xs shrink-0"
+                      [class.bg-brand-500]="indexStatut(c.statut) >= i"
+                      [class.text-white]="indexStatut(c.statut) >= i"
+                      [class.bg-gray-100]="indexStatut(c.statut) < i"
+                      [class.text-gray-400]="indexStatut(c.statut) < i"
+                      [class.dark:bg-gray-800]="indexStatut(c.statut) < i">
+                      @if (indexStatut(c.statut) > i) {
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                          <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      } @else {
+                        <span class="text-[9px]">{{ i + 1 }}</span>
+                      }
+                    </div>
+                    @if (i < etapesStatut.length - 1) {
+                      <div class="h-0.5 flex-1 mx-0.5"
+                        [class.bg-brand-500]="indexStatut(c.statut) > i"
+                        [class.bg-gray-100]="indexStatut(c.statut) <= i"
+                        [class.dark:bg-gray-800]="indexStatut(c.statut) <= i">
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+              <div class="flex justify-between mt-1">
+                <span class="text-[9px] text-gray-400">Attente</span>
+                <span class="text-[9px] text-gray-400">Validée</span>
+                <span class="text-[9px] text-gray-400">Reçue</span>
+              </div>
+            } @else {
+              <div class="mt-3 flex items-center gap-1.5">
+                <div class="w-2 h-2 rounded-full bg-red-400"></div>
+                <span class="text-xs text-red-500 dark:text-red-400">Commande annulée</span>
+              </div>
+            }
           </div>
 
-          <button (click)="voirDetail(c)" class="mt-3 text-xs text-brand-600 dark:text-brand-400 hover:underline">
-            {{ (c.lignes || []).length }} ligne(s) — Total: {{ totalLignes(c) | number:'1.0-2' }} DT
-          </button>
+          <!-- Séparateur -->
+          <div class="border-t border-gray-100 dark:border-gray-800 mx-4"></div>
 
-          <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
-            <span class="text-xs text-gray-400 dark:text-gray-500">{{ c.dateCommande }}</span>
-            <div class="flex gap-2">
+          <!-- Footer carte -->
+          <div class="p-4 pt-3">
+            <div class="flex items-center justify-between mb-3">
+              <button (click)="voirDetail(c)" class="text-xs text-gray-500 dark:text-gray-400 hover:text-brand-600 dark:hover:text-brand-400 transition-colors">
+                {{ (c.lignes || []).length }} ligne(s)
+              </button>
+              <span class="text-sm font-bold text-gray-800 dark:text-white/90">
+                {{ totalLignes(c) | number:'1.0-0' }} DT
+              </span>
+            </div>
+
+            <div class="flex items-center gap-1.5">
               @if (c.statut === 'EN_ATTENTE') {
-                <button (click)="valider(c)" class="h-8 px-3 rounded-lg text-xs font-medium text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-500/10">Valider</button>
+                <button (click)="valider(c)"
+                  class="flex-1 h-8 rounded-lg text-xs font-medium text-brand-600 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-500/10 transition-colors border border-brand-200 dark:border-brand-500/20">
+                  Valider
+                </button>
               }
               @if (c.statut === 'VALIDEE') {
-                <button (click)="recevoir(c)" class="h-8 px-3 rounded-lg text-xs font-medium text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-500/10">Recevoir</button>
+                <button (click)="recevoir(c)"
+                  class="flex-1 h-8 rounded-lg text-xs font-medium text-green-600 hover:bg-green-50 dark:text-green-400 dark:hover:bg-green-500/10 transition-colors border border-green-200 dark:border-green-500/20">
+                  Recevoir
+                </button>
               }
               @if (c.statut === 'EN_ATTENTE' || c.statut === 'VALIDEE') {
-                <button (click)="annuler(c)" class="h-8 px-3 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10">Annuler</button>
+                <button (click)="annuler(c)"
+                  class="h-8 px-3 rounded-lg text-xs font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10 transition-colors">
+                  Annuler
+                </button>
               }
-              <button (click)="demanderSuppression(c)" class="h-8 w-8 flex items-center justify-center rounded-lg text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <button (click)="voirDetail(c)"
+                class="h-8 w-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05] transition-colors ml-auto">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35M11 8v3M11 14h.01" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <button (click)="demanderSuppression(c)"
+                class="h-8 w-8 flex items-center justify-center rounded-lg text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14z" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
               </button>
             </div>
           </div>
@@ -95,20 +397,32 @@
   }
 
   <!-- Pagination -->
-  @if (!loading && commandesFiltrees().length > 0) {
+  @if (!loading && commandesFiltrees().length > pageSize) {
     <div class="flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-5 py-3 dark:border-gray-800 dark:bg-white/[0.03]">
-      <p class="text-sm text-gray-500 dark:text-gray-400">Page {{ page }} sur {{ totalPages }} — {{ commandesFiltrees().length }} résultat(s)</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400">
+        {{ (page - 1) * pageSize + 1 }}–{{ Math.min(page * pageSize, commandesFiltrees().length) }} sur {{ commandesFiltrees().length }}
+      </p>
       <div class="flex items-center gap-1">
-        <button (click)="allerPage(page - 1)" [disabled]="page === 1" class="h-9 w-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-white/[0.03]">
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M12 15l-5-5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <button (click)="allerPage(page - 1)" [disabled]="page === 1"
+          class="h-8 w-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.03]">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+            <path d="M12 15l-5-5 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </button>
         @for (p of pagesArray(); track p) {
-          <button (click)="allerPage(p)" class="h-9 w-9 flex items-center justify-center rounded-lg text-sm font-medium transition-colors" [ngClass]="p === page ? 'bg-brand-500 text-white' : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-white/[0.03]'">
+          <button (click)="allerPage(p)"
+            class="h-8 w-8 flex items-center justify-center rounded-lg text-xs font-medium transition-colors"
+            [class.bg-brand-500]="p === page" [class.text-white]="p === page"
+            [class.text-gray-500]="p !== page" [class.hover:bg-gray-50]="p !== page"
+            [class.dark:text-gray-400]="p !== page">
             {{ p }}
           </button>
         }
-        <button (click)="allerPage(page + 1)" [disabled]="page === totalPages" class="h-9 w-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50 dark:border-gray-800 dark:text-gray-300 dark:hover:bg-white/[0.03]">
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M8 5l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <button (click)="allerPage(page + 1)" [disabled]="page === totalPages"
+          class="h-8 w-8 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.03]">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+            <path d="M8 5l5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </button>
       </div>
     </div>
@@ -118,89 +432,111 @@
   @if (showDetail && commandeDetail) {
     <div class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4" (click)="fermerDetail()">
       <div class="w-full max-w-lg rounded-2xl bg-white p-6 dark:bg-gray-900" (click)="$event.stopPropagation()">
-        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-1">{{ commandeDetail.reference }}</h3>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">{{ commandeDetail.fournisseur?.nom }}</p>
-        <div class="space-y-2 max-h-64 overflow-y-auto">
+        <div class="flex items-start justify-between mb-4">
+          <div>
+            <h3 class="text-lg font-bold text-gray-800 dark:text-white/90">{{ commandeDetail.reference }}</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+              {{ commandeDetail.fournisseur?.nom }} · {{ commandeDetail.dateCommande }}
+            </p>
+          </div>
+          <span class="px-2.5 py-1 rounded-full text-xs font-medium" [ngClass]="statutBadgeClass(commandeDetail.statut)">
+            {{ statutLabel(commandeDetail.statut) }}
+          </span>
+        </div>
+
+        <div class="space-y-2 max-h-60 overflow-y-auto">
+          <div class="grid grid-cols-3 gap-2 px-3 py-1.5 text-xs font-semibold text-gray-400 dark:text-gray-500">
+            <span>Appareil</span><span class="text-center">Qté</span><span class="text-right">Sous-total</span>
+          </div>
           @for (l of commandeDetail.lignes; track l.id) {
-            <div class="flex items-center justify-between rounded-lg bg-gray-50 dark:bg-white/[0.03] px-3 py-2 text-sm">
-              <span class="text-gray-700 dark:text-gray-300">{{ l.appareil?.nom || 'Appareil' }} × {{ l.quantite }}</span>
-              <span class="font-medium text-gray-800 dark:text-white/90">{{ (l.quantite * l.prixUnitaire) | number:'1.0-2' }} DT</span>
+            <div class="grid grid-cols-3 gap-2 rounded-lg bg-gray-50 dark:bg-white/[0.03] px-3 py-2.5 text-sm">
+              <span class="text-gray-700 dark:text-gray-300 truncate">{{ l.appareil?.nom || 'Appareil' }}</span>
+              <span class="text-center text-gray-500 dark:text-gray-400">{{ l.quantite }}</span>
+              <span class="text-right font-medium text-gray-800 dark:text-white/90">{{ (l.quantite * l.prixUnitaire) | number:'1.0-2' }} DT</span>
             </div>
           } @empty {
-            <p class="text-sm text-gray-400">Aucune ligne.</p>
+            <p class="text-sm text-gray-400 text-center py-4">Aucune ligne.</p>
           }
         </div>
+
         <div class="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
-          <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Total</span>
+          <span class="text-sm font-semibold text-gray-600 dark:text-gray-400">Total commande</span>
           <span class="text-lg font-bold text-brand-600 dark:text-brand-400">{{ totalLignes(commandeDetail) | number:'1.0-2' }} DT</span>
         </div>
-        <div class="mt-6 flex justify-end">
-          <button (click)="fermerDetail()" class="h-10 px-4 rounded-lg border border-gray-200 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">Fermer</button>
+        <div class="mt-5 flex justify-end">
+          <button (click)="fermerDetail()" class="h-10 px-5 rounded-lg border border-gray-200 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">Fermer</button>
         </div>
       </div>
     </div>
   }
 
-  <!-- Modal ajout avec lignes -->
+  <!-- Modal nouvelle commande -->
   @if (showModal) {
     <div class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4" (click)="fermerModal()">
       <div class="w-full max-w-lg rounded-2xl bg-white p-6 dark:bg-gray-900 max-h-[90vh] overflow-y-auto" (click)="$event.stopPropagation()">
-        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">Nouvelle commande</h3>
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-white/90 mb-5">Nouvelle commande</h3>
         <div class="space-y-4">
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="text-sm text-gray-600 dark:text-gray-400">Référence</label>
+              <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Référence</label>
               <input [(ngModel)]="nouvelleCommande.reference" type="text" readonly
-                class="mt-1 h-11 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-500 cursor-not-allowed dark:border-gray-800 dark:bg-gray-800 dark:text-gray-400" />
+                class="mt-1 h-10 w-full rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm text-gray-400 cursor-not-allowed dark:border-gray-700 dark:bg-gray-800" />
             </div>
             <div>
-              <label class="text-sm text-gray-600 dark:text-gray-400">Date <span class="text-red-500">*</span></label>
-              <input [(ngModel)]="nouvelleCommande.dateCommande" type="date" required
-                class="mt-1 h-11 w-full rounded-lg border border-gray-200 bg-transparent px-3 text-sm dark:border-gray-800 dark:text-white/90" />
+              <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Date <span class="text-red-500">*</span></label>
+              <input [(ngModel)]="nouvelleCommande.dateCommande" type="date"
+                class="mt-1 h-10 w-full rounded-lg border border-gray-200 bg-transparent px-3 text-sm dark:border-gray-700 dark:text-white/90" />
             </div>
           </div>
           <div>
-            <label class="text-sm text-gray-600 dark:text-gray-400">Fournisseur <span class="text-red-500">*</span></label>
+            <label class="text-xs font-medium text-gray-600 dark:text-gray-400">Fournisseur <span class="text-red-500">*</span></label>
             <select [(ngModel)]="nouvelleCommande.fournisseurId"
-              class="mt-1 h-11 w-full rounded-lg border border-gray-200 bg-white dark:bg-gray-900 px-3 pr-10 text-sm text-gray-700 dark:border-gray-800 dark:text-white/90 appearance-none bg-no-repeat bg-[right_0.75rem_center] cursor-pointer"
-              style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2216%22 height=%2216%22 viewBox=%220 0 20 20%22 fill=%22none%22><path d=%22M5 7l5 5 5-5%22 stroke=%22%239ca3af%22 stroke-width=%221.6%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')">
+              class="mt-1 h-10 w-full rounded-lg border border-gray-200 bg-white dark:bg-gray-900 px-3 text-sm text-gray-700 dark:border-gray-700 dark:text-white/90">
               <option [ngValue]="null">-- Sélectionner --</option>
               @for (f of fournisseurs; track f.id) { <option [ngValue]="f.id">{{ f.nom }} ({{ f.pays }})</option> }
             </select>
           </div>
 
           <div class="border-t border-gray-100 dark:border-gray-800 pt-4">
-            <div class="flex items-center justify-between mb-2">
-              <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Lignes de commande</label>
-              <button type="button" (click)="ajouterLigne()" class="text-xs text-brand-600 dark:text-brand-400 hover:underline">+ Ajouter une ligne</button>
+            <div class="flex items-center justify-between mb-3">
+              <p class="text-xs font-semibold text-gray-700 dark:text-gray-300">Lignes de commande</p>
+              <button type="button" (click)="ajouterLigne()" class="text-xs text-brand-600 dark:text-brand-400 hover:underline">+ Ajouter</button>
             </div>
             <div class="space-y-2">
               @for (l of lignesForm; track $index; let i = $index) {
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 p-2 rounded-lg bg-gray-50 dark:bg-white/[0.03]">
                   <select [(ngModel)]="l.appareilId" [name]="'app'+i"
-                    class="h-10 flex-1 rounded-lg border border-gray-200 bg-white dark:bg-gray-900 px-2 text-xs text-gray-700 dark:border-gray-800 dark:text-white/90">
+                    class="h-9 flex-1 rounded-lg border border-gray-200 bg-white dark:bg-gray-800 px-2 text-xs text-gray-700 dark:border-gray-700 dark:text-white/90">
                     <option [ngValue]="null">-- Appareil --</option>
                     @for (a of appareils; track a.id) { <option [ngValue]="a.id">{{ a.nom }}</option> }
                   </select>
                   <input [(ngModel)]="l.quantite" [name]="'qte'+i" type="number" min="1" placeholder="Qté"
-                    class="h-10 w-16 rounded-lg border border-gray-200 bg-transparent px-2 text-xs dark:border-gray-800 dark:text-white/90" />
-                  <input [(ngModel)]="l.prixUnitaire" [name]="'prix'+i" type="number" min="0" placeholder="Prix"
-                    class="h-10 w-20 rounded-lg border border-gray-200 bg-transparent px-2 text-xs dark:border-gray-800 dark:text-white/90" />
-                  <button type="button" (click)="supprimerLigne(i)" class="h-10 w-10 flex items-center justify-center rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    class="h-9 w-14 rounded-lg border border-gray-200 bg-transparent px-2 text-xs text-center dark:border-gray-700 dark:text-white/90" />
+                  <input [(ngModel)]="l.prixUnitaire" [name]="'prix'+i" type="number" min="0" placeholder="Prix DT"
+                    class="h-9 w-20 rounded-lg border border-gray-200 bg-transparent px-2 text-xs dark:border-gray-700 dark:text-white/90" />
+                  <button type="button" (click)="supprimerLigne(i)"
+                    class="h-9 w-9 flex items-center justify-center rounded-lg text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 shrink-0">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round"/>
+                    </svg>
                   </button>
                 </div>
               }
             </div>
-            <div class="mt-3 flex justify-end text-sm font-medium text-gray-700 dark:text-gray-300">
-              Total: {{ totalCommande() | number:'1.0-2' }} DT
+            <div class="mt-3 flex justify-end">
+              <span class="text-sm font-bold text-gray-800 dark:text-white/90">
+                Total : {{ totalCommande() | number:'1.0-2' }} DT
+              </span>
             </div>
           </div>
         </div>
-        @if (formErreur) { <p class="mt-3 text-sm text-red-600 dark:text-red-400">{{ formErreur }}</p> }
-        <div class="mt-6 flex justify-end gap-3">
+
+        @if (formErreur) {
+          <p class="mt-3 text-xs text-red-600 dark:text-red-400">{{ formErreur }}</p>
+        }
+        <div class="mt-5 flex justify-end gap-3">
           <button (click)="fermerModal()" class="h-10 px-4 rounded-lg border border-gray-200 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">Annuler</button>
-          <button (click)="enregistrer()" class="h-10 px-4 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium">Enregistrer</button>
+          <button (click)="enregistrer()" class="h-10 px-5 rounded-lg bg-brand-500 hover:bg-brand-600 text-white text-sm font-medium">Enregistrer</button>
         </div>
       </div>
     </div>
@@ -210,15 +546,19 @@
   @if (showConfirmSuppression) {
     <div class="fixed inset-0 z-99999 flex items-center justify-center bg-black/40 p-4" (click)="annulerSuppression()">
       <div class="w-full max-w-sm rounded-2xl bg-white p-6 dark:bg-gray-900" (click)="$event.stopPropagation()">
-        <div class="flex items-center justify-center w-12 h-12 rounded-full bg-red-50 dark:bg-red-500/15 mx-auto mb-4">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M10.3 3.9L2.7 17a2 2 0 001.7 3h15.2a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="#dc2626" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="w-12 h-12 rounded-full bg-red-50 dark:bg-red-500/15 flex items-center justify-center mx-auto mb-4">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.8">
+            <path d="M12 9v4m0 4h.01M10.3 3.9L2.7 17a2 2 0 001.7 3h15.2a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
         </div>
-        <h3 class="text-center text-lg font-semibold text-gray-800 dark:text-white/90">Supprimer cette commande ?</h3>
-        <div class="mt-6 flex justify-center gap-3">
+        <h3 class="text-center text-base font-semibold text-gray-800 dark:text-white/90">Supprimer cette commande ?</h3>
+        <p class="text-center text-xs text-gray-400 mt-1">Cette action est irréversible.</p>
+        <div class="mt-5 flex justify-center gap-3">
           <button (click)="annulerSuppression()" class="h-10 px-5 rounded-lg border border-gray-200 text-sm text-gray-700 dark:border-gray-700 dark:text-gray-300">Annuler</button>
           <button (click)="confirmerSuppression()" class="h-10 px-5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium">Supprimer</button>
         </div>
       </div>
     </div>
   }
+
 </div>

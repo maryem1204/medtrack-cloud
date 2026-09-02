@@ -7,6 +7,12 @@ import { HistoriqueService, HistoriqueAppareil } from '../../../services/histori
 import { HasPermissionDirective } from '../../../directives/has-permission.directive';
 import { AuthService } from '../../../services/auth/auth.service';
 
+type VueMode = 'grille' | 'tableau';
+type TriChamp = 'nom' | 'numeroSerie' | 'dateImport' | 'statut';
+type ToastType = 'success' | 'error' | 'info';
+
+const STATUTS = ['EN_STOCK', 'VENDU', 'EN_MAINTENANCE', 'HORS_SERVICE'];
+
 @Component({
   selector: 'app-appareils-list',
   standalone: true,
@@ -17,13 +23,62 @@ export class AppareilsListComponent implements OnInit {
   appareils: Appareil[] = [];
   loading = true;
 
-  private _searchTerm = '';
-  get searchTerm() { return this._searchTerm; }
-  set searchTerm(v: string) { this._searchTerm = v; this.page = 1; }
+  // --- Vue (grille / tableau) ---
+  vue: VueMode = (localStorage.getItem('appareils.vue') as VueMode) || 'grille';
+  changerVue(v: VueMode) { this.vue = v; localStorage.setItem('appareils.vue', v); }
 
-  private _filtreStatut = '';
-  get filtreStatut() { return this._filtreStatut; }
-  set filtreStatut(v: string) { this._filtreStatut = v; this.page = 1; }
+  // --- Recherche avec debounce ---
+  private _searchTerm = '';
+  private searchTimeout: any;
+  searchInput = '';
+  get searchTerm() { return this._searchTerm; }
+  onSearchInput(v: string) {
+    this.searchInput = v;
+    clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => { this._searchTerm = v; this.page = 1; }, 300);
+  }
+  effacerRecherche() { this.searchInput = ''; this._searchTerm = ''; this.page = 1; }
+
+  // --- Filtres avancés ---
+  showFiltres = false;
+  statutsSelectionnes: string[] = [];
+  categoriesSelectionnees: string[] = [];
+
+  toggleFiltreStatut(statut: string) {
+    const i = this.statutsSelectionnes.indexOf(statut);
+    if (i === -1) this.statutsSelectionnes.push(statut); else this.statutsSelectionnes.splice(i, 1);
+    this.page = 1;
+  }
+  toggleFiltreCategorie(cat: string) {
+    const i = this.categoriesSelectionnees.indexOf(cat);
+    if (i === -1) this.categoriesSelectionnees.push(cat); else this.categoriesSelectionnees.splice(i, 1);
+    this.page = 1;
+  }
+  categoriesDisponibles(): string[] {
+    return Array.from(new Set(this.appareils.map(a => a.categorie))).sort();
+  }
+  get nombreFiltresActifs(): number {
+    return this.statutsSelectionnes.length + this.categoriesSelectionnees.length;
+  }
+  reinitialiserFiltres() {
+    this.statutsSelectionnes = [];
+    this.categoriesSelectionnees = [];
+    this.searchInput = '';
+    this._searchTerm = '';
+    this.page = 1;
+  }
+
+  // --- Tri ---
+  triChamp: TriChamp = 'nom';
+  triOrdre: 'asc' | 'desc' = 'asc';
+  trierPar(champ: TriChamp) {
+    if (this.triChamp === champ) this.triOrdre = this.triOrdre === 'asc' ? 'desc' : 'asc';
+    else { this.triChamp = champ; this.triOrdre = 'asc'; }
+  }
+  iconeTri(champ: TriChamp): string {
+    if (this.triChamp !== champ) return '';
+    return this.triOrdre === 'asc' ? '↑' : '↓';
+  }
 
   page = 1;
   pageSize = 6;
@@ -57,6 +112,19 @@ export class AppareilsListComponent implements OnInit {
   historiqueAppareil: HistoriqueAppareil[] = [];
   appareilHistoriqueTrace: Appareil | null = null;
 
+  // --- Suppression (modal de confirmation au lieu de confirm() natif) ---
+  showConfirmSuppression = false;
+  appareilASupprimer: Appareil | null = null;
+
+  // --- Toasts ---
+  toast: { message: string; type: ToastType } | null = null;
+  private toastTimeout: any;
+  private afficherToast(message: string, type: ToastType = 'success') {
+    clearTimeout(this.toastTimeout);
+    this.toast = { message, type };
+    this.toastTimeout = setTimeout(() => (this.toast = null), 3500);
+  }
+
   constructor(
     private appareilService: AppareilService,
     private historiqueService: HistoriqueService,
@@ -64,8 +132,6 @@ export class AppareilsListComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    console.log('USER:', this.authService.getUser());
-  console.log('ROLE EXACT:', JSON.stringify(this.authService.getUser()?.role));
     this.charger();
   }
 
@@ -73,7 +139,7 @@ export class AppareilsListComponent implements OnInit {
     this.loading = true;
     this.appareilService.getAll().subscribe({
       next: (data) => { this.appareils = data; this.loading = false; },
-      error: (err) => { console.error(err); this.loading = false; },
+      error: (err) => { console.error(err); this.loading = false; this.afficherToast('Impossible de charger les appareils.', 'error'); },
     });
   }
 
@@ -105,8 +171,8 @@ export class AppareilsListComponent implements OnInit {
 
     if (this.modeEdition && this.nouvelAppareil.id) {
       this.appareilService.update(this.nouvelAppareil.id, this.nouvelAppareil).subscribe({
-        next: () => { this.fermerModal(); this.charger(); },
-        error: (err) => console.error(err),
+        next: () => { this.fermerModal(); this.charger(); this.afficherToast('Appareil modifié avec succès.'); },
+        error: (err) => { console.error(err); this.afficherToast("Erreur lors de la modification.", 'error'); },
       });
     } else {
       this.appareilService.create(this.nouvelAppareil).subscribe({
@@ -118,20 +184,34 @@ export class AppareilsListComponent implements OnInit {
           }).subscribe();
           this.fermerModal();
           this.charger();
+          this.afficherToast('Appareil ajouté avec succès.');
         },
-        error: (err) => console.error(err),
+        error: (err) => { console.error(err); this.afficherToast("Erreur lors de l'ajout.", 'error'); },
       });
     }
   }
 
+  // --- Filtrage + tri combinés ---
   appareilsFiltres(): Appareil[] {
-    return this.appareils.filter(a => {
-      const matchSearch = !this.searchTerm ||
-        a.nom.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        a.numeroSerie.toLowerCase().includes(this.searchTerm.toLowerCase());
-      const matchStatut = !this.filtreStatut || a.statut === this.filtreStatut;
-      return matchSearch && matchStatut;
+    const term = this.searchTerm.toLowerCase();
+
+    let liste = this.appareils.filter(a => {
+      const matchSearch = !term ||
+        a.nom.toLowerCase().includes(term) ||
+        a.numeroSerie.toLowerCase().includes(term);
+      const matchStatut = this.statutsSelectionnes.length === 0 || this.statutsSelectionnes.includes(a.statut);
+      const matchCategorie = this.categoriesSelectionnees.length === 0 || this.categoriesSelectionnees.includes(a.categorie);
+      return matchSearch && matchStatut && matchCategorie;
     });
+
+    liste = [...liste].sort((a, b) => {
+      const va = (a[this.triChamp] || '').toString().toLowerCase();
+      const vb = (b[this.triChamp] || '').toString().toLowerCase();
+      const cmp = va.localeCompare(vb);
+      return this.triOrdre === 'asc' ? cmp : -cmp;
+    });
+
+    return liste;
   }
 
   countByStatut(statut: string): number {
@@ -166,6 +246,13 @@ export class AppareilsListComponent implements OnInit {
     return classes[statut] || 'border-l-gray-200';
   }
 
+  statutCouleur(statut: string): string {
+    const couleurs: Record<string, string> = {
+      EN_STOCK: '#16a34a', VENDU: '#0d8f9e', EN_MAINTENANCE: '#d97706', HORS_SERVICE: '#dc2626',
+    };
+    return couleurs[statut] || '#9ca3af';
+  }
+
   modifier(appareil: Appareil) {
     this.nouvelAppareil = { ...appareil };
     this.modeEdition = true;
@@ -173,28 +260,28 @@ export class AppareilsListComponent implements OnInit {
     this.showModal = true;
   }
 
-  supprimer(appareil: Appareil) {
-    if (!appareil.id) return;
-    const confirme = confirm(`Supprimer l'appareil "${appareil.nom}" (${appareil.numeroSerie}) ?`);
-    if (!confirme) return;
-    this.appareilService.delete(appareil.id).subscribe({
-      next: () => this.charger(),
-      error: (err) => console.error(err),
+  demanderSuppression(appareil: Appareil) { this.appareilASupprimer = appareil; this.showConfirmSuppression = true; }
+  annulerSuppression() { this.showConfirmSuppression = false; this.appareilASupprimer = null; }
+  confirmerSuppression() {
+    if (!this.appareilASupprimer?.id) return;
+    const nom = this.appareilASupprimer.nom;
+    this.appareilService.delete(this.appareilASupprimer.id).subscribe({
+      next: () => {
+        this.showConfirmSuppression = false;
+        this.appareilASupprimer = null;
+        this.charger();
+        this.afficherToast(`"${nom}" a été supprimé.`);
+      },
+      error: (err) => { console.error(err); this.afficherToast('Suppression impossible.', 'error'); },
     });
   }
 
-  /*async voirQrCode(a: Appareil) {
+  async voirQrCode(a: Appareil) {
     this.appareilQr = a;
-    const url = `${window.location.origin}/scan/${a.id}`;
+    const url = `http://192.168.1.7:4200/scan/${a.id}`;
     this.qrDataUrl = await QRCode.toDataURL(url, { width: 240, margin: 2, color: { dark: '#0a4a53', light: '#ffffff' } });
     this.showQrModal = true;
-  }*/
- async voirQrCode(a: Appareil) {
-  this.appareilQr = a;
-  const url = `http://192.168.1.7:4200/scan/${a.id}`;
-  this.qrDataUrl = await QRCode.toDataURL(url, { width: 240, margin: 2, color: { dark: '#0a4a53', light: '#ffffff' } });
-  this.showQrModal = true;
-}
+  }
   fermerQrModal() { this.showQrModal = false; }
 
   telechargerQr() {
@@ -213,8 +300,78 @@ export class AppareilsListComponent implements OnInit {
         this.historiqueAppareil = data.sort((x, y) => new Date(y.date).getTime() - new Date(x.date).getTime());
         this.showHistoriqueTracabilite = true;
       },
-      error: (err) => console.error(err),
+      error: (err) => { console.error(err); this.afficherToast("Impossible de charger l'historique.", 'error'); },
     });
   }
   fermerTracabilite() { this.showHistoriqueTracabilite = false; }
+
+  // --- Indicateurs clés (KPI) ---
+  get kpiEnStock(): number { return this.countByStatut('EN_STOCK'); }
+  get kpiVendu(): number { return this.countByStatut('VENDU'); }
+  get kpiMaintenance(): number { return this.countByStatut('EN_MAINTENANCE'); }
+  get kpiHorsService(): number { return this.countByStatut('HORS_SERVICE'); }
+
+  // --- Répartition par statut (barre segmentée) ---
+  repartitionParStatut(): { statut: string; label: string; count: number; pct: number; couleur: string }[] {
+    const total = this.appareils.length || 1;
+    return STATUTS.map(s => ({
+      statut: s,
+      label: this.statutLabel(s),
+      count: this.countByStatut(s),
+      pct: Math.round((this.countByStatut(s) / total) * 1000) / 10,
+      couleur: this.statutCouleur(s),
+    })).filter(r => r.count > 0);
+  }
+
+  // --- Insights intelligents ---
+  get tauxDisponibilite(): number {
+    if (this.appareils.length === 0) return 0;
+    return Math.round((this.kpiEnStock / this.appareils.length) * 100);
+  }
+
+  get tauxMaintenance(): number {
+    if (this.appareils.length === 0) return 0;
+    return Math.round((this.kpiMaintenance / this.appareils.length) * 100);
+  }
+
+  get importsCeMois(): number {
+    const maintenant = new Date();
+    return this.appareils.filter(a => {
+      if (!a.dateImport) return false;
+      const d = new Date(a.dateImport);
+      return d.getMonth() === maintenant.getMonth() && d.getFullYear() === maintenant.getFullYear();
+    }).length;
+  }
+
+  get categorieDominante(): { nom: string; count: number; pourcentage: number } | null {
+    if (this.appareils.length === 0) return null;
+    const compte: Record<string, number> = {};
+    this.appareils.forEach(a => { compte[a.categorie] = (compte[a.categorie] || 0) + 1; });
+    const entries = Object.entries(compte).sort((a, b) => b[1] - a[1]);
+    if (entries.length === 0) return null;
+    return { nom: entries[0][0], count: entries[0][1], pourcentage: Math.round((entries[0][1] / this.appareils.length) * 100) };
+  }
+
+  // --- Export CSV ---
+  exporterCsv() {
+    const liste = this.appareilsFiltres();
+    if (liste.length === 0) { this.afficherToast('Aucune donnée à exporter.', 'info'); return; }
+
+    const entetes = ['N° série', 'Nom', 'Catégorie', "Date d'import", 'Statut'];
+    const lignes = liste.map(a => [
+      a.numeroSerie, a.nom, a.categorie, a.dateImport, this.statutLabel(a.statut),
+    ]);
+    const csv = [entetes, ...lignes]
+      .map(l => l.map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(';'))
+      .join('\n');
+
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `appareils_medtrack_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    this.afficherToast(`${liste.length} appareil(s) exporté(s).`);
+  }
 }
