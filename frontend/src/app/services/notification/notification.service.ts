@@ -15,7 +15,7 @@ export interface Notif {
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
-  private apiUrl = 'http://192.168.1.8:8080/api/notifications';
+private apiUrl = '/api/notifications';
   private stompClient!: Client;
 
   notifications$ = new BehaviorSubject<Notif[]>([]);
@@ -27,7 +27,7 @@ export class NotificationService {
     this.charger();
 
     this.stompClient = new Client({
-      webSocketFactory: () => new SockJS('http://192.168.1.8:8080/ws'),
+      webSocketFactory: () => new SockJS('/ws'),
       onConnect: () => {
         this.stompClient.subscribe(`/topic/notifications/${userId}`, (msg) => {
           const notif: Notif = JSON.parse(msg.body);
