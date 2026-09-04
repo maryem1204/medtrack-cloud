@@ -42,7 +42,7 @@ export class ChatbotComponent implements AfterViewChecked {
 
     const historique = this.chatMessages.slice(-6).map(m => ({ role: m.role, content: m.content }));
 
-    this.http.post<any>('http://localhost:8080/api/chat', { messages: historique }).subscribe({
+    this.http.post<any>("/api/chat", { messages: historique }).subscribe({
       next: (res) => {
         this.chatMessages.push({ role: 'assistant', content: res.content?.[0]?.text || 'Je ne peux pas répondre pour le moment.' });
         this.chatLoading = false;

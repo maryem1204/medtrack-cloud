@@ -119,8 +119,8 @@ export class EcommerceComponent implements OnInit, AfterViewChecked {
       .map((m) => ({ role: m.role, content: m.content }));
 
     this.http
-      .post<any>("http://localhost:8080/api/chat", {
-        messages: historique,
+      .post<any>("/api/chat", {
+          messages: historique,
       })
       .subscribe({
         next: (res) => {

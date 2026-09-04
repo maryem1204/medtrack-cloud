@@ -19,8 +19,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns(
                         "http://localhost:4200",
-                        "http://192.168.1.7:4200",
-                        "http://192.168.1.8:4200"
+                        "http://192.168.1.*:4200"
                 )
                 .withSockJS();
     }
