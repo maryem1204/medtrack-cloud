@@ -44,48 +44,48 @@ export const routes: Routes = [
         path: '',
         component: EcommerceComponent,
         pathMatch: 'full',
-        title: 'MedTrack Cloud',
+        title: 'MedTrack ',
       },
       {
         path: 'dashboard',
         component: EcommerceComponent,
         canActivate: [roleGuard],
         data: { roles: ['ADMIN'] },
-        title: 'Tableau de bord | MedTrack Cloud',
+        title: 'Tableau de bord | MedTrack ',
       },
-      { path: 'espace-client', component: ClientDashboardComponent, canActivate: [roleGuard], data: { roles: ['CLIENT', 'ADMIN', 'TECHNICIEN', 'COMMERCIAL'] }, title: 'Espace client | MedTrack Cloud' },
+      { path: 'espace-client', component: ClientDashboardComponent, canActivate: [roleGuard], data: { roles: ['CLIENT', 'ADMIN', 'TECHNICIEN', 'COMMERCIAL'] }, title: 'Espace client | MedTrack ' },
       {
         path: 'utilisateurs',
         component: UtilisateursListComponent,
         canActivate: [roleGuard],
         data: { roles: ['ADMIN'] },
-        title: 'Utilisateurs | MedTrack Cloud'
+        title: 'Utilisateurs | MedTrack '
       },
       {
         path: 'ventes',
         component: VentesListComponent,
         canActivate: [roleGuard],
         data: { roles: ['ADMIN', 'COMMERCIAL'] },
-        title: 'Ventes | MedTrack Cloud'
+        title: 'Ventes | MedTrack '
       },
       {
         path: 'alertes',
         component: AlertesListComponent,
         canActivate: [roleGuard],
         data: { roles: ['ADMIN', 'TECHNICIEN'] },
-        title: 'Alertes | MedTrack Cloud'
+        title: 'Alertes | MedTrack '
       },
       {
         path: 'clients',
         component: ClientsListComponent,
-        title: 'Clients | MedTrack Cloud'
+        title: 'Clients | MedTrack '
       },
       {
         path: 'maintenance',
         component: MaintenanceListComponent,
         canActivate: [roleGuard],
         data: { roles: ['ADMIN', 'TECHNICIEN'] },
-        title: 'Maintenance | MedTrack Cloud'
+        title: 'Maintenance | MedTrack '
       },
       {
         path: 'appareils',
@@ -96,14 +96,14 @@ export const routes: Routes = [
         component: FournisseursListComponent,
         canActivate: [roleGuard],
         data: { roles: ['ADMIN', 'COMMERCIAL'] },
-        title: 'Fournisseurs | MedTrack Cloud'
+        title: 'Fournisseurs | MedTrack '
       },
       {
         path: 'commandes',
         component: CommandesListComponent,
         canActivate: [roleGuard],
         data: { roles: ['ADMIN', 'COMMERCIAL'] },
-        title: 'Commandes | MedTrack Cloud'
+        title: 'Commandes | MedTrack '
       },
       {
         path: 'calendar',
@@ -177,11 +177,11 @@ export const routes: Routes = [
       },
     ]
   },
-  { path: 'signin', component: SignInComponent, canActivate: [guestGuard], title: 'Sign In | MedTrack Cloud' },
-  { path: 'signup', component: SignUpComponent, canActivate: [guestGuard], title: 'Sign Up | MedTrack Cloud' },
-  { path: 'reset-password', component: ForgotPasswordComponent, title: 'Mot de passe oublié | MedTrack Cloud' },
-{ path: 'create-password', component: CreatePasswordComponent, title: 'Créer mon mot de passe | MedTrack Cloud' },
-  { path: 'scan/:id', component: ScanAppareilComponent, title: 'Scan appareil | MedTrack Cloud' },
+  { path: 'signin', component: SignInComponent, canActivate: [guestGuard], title: 'Sign In | MedTrack ' },
+  { path: 'signup', component: SignUpComponent, canActivate: [guestGuard], title: 'Sign Up | MedTrack ' },
+  { path: 'reset-password', component: ForgotPasswordComponent, title: 'Mot de passe oublié | MedTrack ' },
+{ path: 'create-password', component: CreatePasswordComponent, title: 'Créer mon mot de passe | MedTrack ' },
+  { path: 'scan/:id', component: ScanAppareilComponent, title: 'Scan appareil | MedTrack ' },
   {
     path: '**',
     component: NotFoundComponent,
