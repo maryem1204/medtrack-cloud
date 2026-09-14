@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backend-secret
+  namespace: medtrack
+type: Opaque
+stringData:
+  GEMINI_API_KEY: "REMPLACE_PAR_TA_CLE_GEMINI"
+  SPRING_MAIL_PASSWORD: "kqmt heyx mpwm qaau"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: medtrack-backend
+  namespace: medtrack
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: medtrack-backend }
+  template:
+    metadata:
+      labels: { app: medtrack-backend }
+    spec:
+      containers:
+        - name: backend
+          image: mirouu/medtrack-backend:latest
+          ports: [{ containerPort: 8080 }]
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysql:3306/medtrack
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom: { secretKeyRef: { name: mysql-secret, key: MYSQL_USER } }
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom: { secretKeyRef: { name: mysql-secret, key: MYSQL_PASSWORD } }
+            - name: GEMINI_API_KEY
+              valueFrom: { secretKeyRef: { name: backend-secret, key: GEMINI_API_KEY } }
+            - name: SPRING_MAIL_PASSWORD
+              valueFrom: { secretKeyRef: { name: backend-secret, key: SPRING_MAIL_PASSWORD } }
+          resources:
+            requests: { cpu: "100m", memory: "256Mi" }
+            limits: { cpu: "500m", memory: "512Mi" }
+          startupProbe:
+            httpGet: { path: /actuator/health, port: 8080 }
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            httpGet: { path: /actuator/health, port: 8080 }
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet: { path: /actuator/health, port: 8080 }
+            periodSeconds: 15
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: medtrack
+spec:
+  selector: { app: medtrack-backend }
+  ports: [{ port: 8080, targetPort: 8080 }]
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: medtrack-backend-hpa
+  namespace: medtrack
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: medtrack-backend
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: { type: Utilization, averageUtilization: 70 }
