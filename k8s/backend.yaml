@@ -14,7 +14,7 @@ metadata:
   name: medtrack-backend
   namespace: medtrack
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels: { app: medtrack-backend }
   template:
