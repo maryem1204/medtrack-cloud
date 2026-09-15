@@ -13,4 +13,4 @@ frontend/dist/
 *.iml
 
 # OS
-.DS_Store
+.DS_Store.env
